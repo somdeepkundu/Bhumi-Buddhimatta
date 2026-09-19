@@ -1,0 +1,5 @@
+aps2/data/
+aps2/output/
+*.tif
+*.tiff
+.ipynb_checkpoints/
