@@ -475,7 +475,7 @@
 </head>
 <body>
     
-    <div style="position:fixed;top:10px;left:50px;z-index:9999;background:rgba(255,255,255,.9);padding:6px 10px;border-radius:6px;font-size:13px"><b>पिकांचा पाणी वापर / Crop water use (ET)</b> — दातली & मुसळगाव<br><span style="font-size:11px">Pick a date (top-right) · hover a field for its survey number & season ET<br>Somdeep Kundu, RuDRA Lab, C-TARA, IIT Bombay</span></div>
+    <div style="position:fixed;top:10px;left:50px;z-index:9999;background:rgba(255,255,255,.9);padding:6px 10px;border-radius:6px;font-size:13px"><b>पिकांचा पाणी वापर / Crop water use (ET)</b> — दातली & मुसळगाव<br><span style="font-size:11px">Pick a date (top-right) · hover a field for its survey number & season ET<br>RuDRA Lab, IIT Bombay</span></div>
     
             <div class="folium-map" id="map_1727b09ac7954962932dc3f4b18366e8" ></div>
         
@@ -496,6 +496,9 @@
 
                 }
             );
+            map_1727b09ac7954962932dc3f4b18366e8.createPane('etPane');
+            map_1727b09ac7954962932dc3f4b18366e8.getPane('etPane').style.zIndex = 350;
+
             L.control.scale().addTo(map_1727b09ac7954962932dc3f4b18366e8);
 
             
@@ -533,6 +536,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -551,6 +556,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -569,6 +576,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -587,6 +596,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -605,6 +616,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -623,6 +636,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -641,6 +656,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -659,6 +676,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -677,6 +696,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -695,6 +716,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -716,6 +739,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -734,6 +759,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -752,6 +779,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -770,6 +799,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -788,6 +819,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -806,6 +839,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -824,6 +859,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -842,6 +879,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -860,6 +899,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -878,6 +919,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -896,6 +939,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -914,6 +959,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -932,6 +979,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -950,6 +999,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -968,6 +1019,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -986,6 +1039,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -1004,6 +1059,8 @@
                 [[19.754533708932453, 74.007954734367], [19.889181147285296, 74.13703822898626]],
                 {
   "opacity": 0.85,
+  "pane": "etPane",
+  "interactive": false,
 }
             );
         
@@ -1014,7 +1071,7 @@
         function geo_json_5696a796f4034e27baf652631d0b4e37_styler(feature) {
             switch(feature.id) {
                 default:
-                    return {"color": "white", "fill": true, "fillOpacity": 0.0, "weight": 0.6};
+                    return {"color": "#111111", "opacity": 0.8, "fill": true, "fillOpacity": 0.0, "weight": 1.0};
             }
         }
         function geo_json_5696a796f4034e27baf652631d0b4e37_highlighter(feature) {
@@ -1097,7 +1154,7 @@
         function geo_json_f26f4f5b1d530055084c3b91bdfb8e64_styler(feature) {
             switch(feature.id) {
                 default:
-                    return {"color": "black", "fillOpacity": 0, "weight": 3};
+                    return {"color": "black", "fill": false, "weight": 3.5};
             }
         }
 
@@ -1123,6 +1180,9 @@
         
     
             geo_json_f26f4f5b1d530055084c3b91bdfb8e64.addTo(map_1727b09ac7954962932dc3f4b18366e8);
+            var village_halo = L.geoJson(geo_json_f26f4f5b1d530055084c3b91bdfb8e64.toGeoJSON(), {style: {color: '#ffffff', weight: 8, opacity: 0.9, fill: false}, interactive: false}).addTo(map_1727b09ac7954962932dc3f4b18366e8);
+            village_halo.bringToBack();
+
         
     
             var marker_66f6dbd9add7deaff18973bdc2ace3eb = L.marker(
