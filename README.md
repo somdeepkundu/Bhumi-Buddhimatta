@@ -7,7 +7,7 @@ RuDRA Lab · C-TARA · IIT Bombay
 | App | Open | What it does |
 |---|---|---|
 | **JalDHARA** | [Launch](https://somdeepkundu.github.io/Bhumi-Buddhimatta/jaldhara.html) | FAO-56 reference ET (Penman–Monteith, pan, Hargreaves–Samani, Open-Meteo) → crop water need |
-| **Crop Kc Finder** | [Launch](https://somdeepkundu.github.io/Bhumi-Buddhimatta/crop_kc_app.html) | 36 Maharashtra Kc tables, irrigation calculator, curve fitting |
+| **Crop Kc Finder** | [Launch](https://somdeepkundu.github.io/Bhumi-Buddhimatta/crop_kc_explorer_v2.html) | 36 Maharashtra Kc tables, irrigation calculator, curve fitting |
 | **CropView v3** | [Launch](https://somdeepkundu.github.io/cropview-v3/) | Geo-tagged field ground truth (PWA) |
 
 
