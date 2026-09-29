@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="mr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1d4e89">
+<title>शेत नोंद — Field survey · Datli &amp; Musalgaon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{--water:#1d4e89;--leaf:#2e7d32;--soil:#7a4e2d;--sun:#f2b705;--paper:#fff;--ink:#14213d;--mute:#566074;--wash:#eef1f5;--line:#d9dee6;--bad:#b3261e;
+  --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);--sl:env(safe-area-inset-left,0px);--sr:env(safe-area-inset-right,0px)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;font-family:'Mukta','Noto Sans Devanagari',system-ui,sans-serif;color:var(--ink);-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.hidden{display:none!important}
+#map{position:fixed;inset:0;background:#33402f}
+.leaflet-container{font-family:inherit}
+/* top bar */
+.top{position:fixed;z-index:1000;top:calc(var(--st) + 10px);left:calc(var(--sl) + 10px);right:calc(var(--sr) + 10px);display:flex;gap:8px;align-items:stretch}
+.brand{flex:1;background:var(--paper);border-radius:16px;padding:6px 12px;box-shadow:0 3px 14px rgba(20,33,61,.28);line-height:1.1}
+.brand b{font-size:21px;font-weight:800;display:block}
+.brand span{font-size:12px;color:var(--mute)}
+.pill{border:0;background:var(--paper);border-radius:16px;padding:6px 12px;min-width:62px;box-shadow:0 3px 14px rgba(20,33,61,.28);font-weight:800;font-size:15px;line-height:1.05}
+.pill small{display:block;font-weight:600;font-size:11px;color:var(--mute)}
+#gpsChip.ok{background:#e3f2e5} #gpsChip.warn{background:#fff3cf} #gpsChip.bad{background:#fde3e1}
+/* bottom dock */
+.dock{position:fixed;z-index:1000;left:calc(var(--sl) + 10px);right:calc(var(--sr) + 10px);bottom:calc(var(--sb) + 10px);display:flex;flex-direction:column;gap:8px}
+.big{border:0;border-radius:16px;min-height:62px;padding:8px 14px;font-size:19px;font-weight:800;line-height:1.1;box-shadow:0 3px 16px rgba(20,33,61,.3)}
+.big small{display:block;font-size:13px;font-weight:600;opacity:.85}
+.primary{background:var(--water);color:#fff}
+.second{background:var(--sun);color:var(--ink)}
+.tiphint{align-self:center;background:rgba(20,33,61,.82);color:#fff;border-radius:10px;padding:4px 10px;font-size:13px}
+/* panels */
+.panel{position:fixed;z-index:1200;inset:0;background:var(--paper);display:flex;flex-direction:column;transform:translateY(102%);transition:transform .22s ease}
+.panel.open{transform:none}
+.phead{display:flex;align-items:center;gap:8px;padding:calc(var(--st) + 8px) calc(var(--sr) + 10px) 8px calc(var(--sl) + 10px);border-bottom:1px solid var(--line);background:var(--paper)}
+.phead h2{flex:1;margin:0;font-size:19px;line-height:1.15;font-weight:800}
+.phead h2 small{display:block;font-size:13px;color:var(--mute);font-weight:600}
+.iconbtn{width:48px;height:48px;border:0;border-radius:12px;background:var(--wash);font-size:24px;line-height:1;flex:none}
+.savebtn{border:0;border-radius:12px;background:var(--leaf);color:#fff;font-weight:800;font-size:17px;padding:0 16px;height:48px}
+.pbody{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px calc(var(--sr) + 12px) calc(var(--sb) + 40px) calc(var(--sl) + 12px)}
+.loc{background:var(--ink);color:#fff;border-radius:14px;padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center}
+.loc .id{font-size:22px;font-weight:800;letter-spacing:.02em}
+.loc .meta{font-size:14px;opacity:.9;line-height:1.3}
+.loc button{grid-row:1/3;grid-column:2;border:0;border-radius:10px;background:var(--sun);color:var(--ink);font-weight:800;padding:6px 10px;min-height:46px;font-size:14px;line-height:1.1}
+.badge{display:inline-block;border-radius:8px;padding:0 6px;font-size:13px;font-weight:800;margin-left:4px}
+.badge.ok{background:#b9e4bf;color:#0f3d14} .badge.warn{background:#ffe08a;color:#4a3700} .badge.bad{background:#f6b5b0;color:#5d0d08}
+details{border:1px solid var(--line);border-radius:14px;margin-top:10px;background:#fff;overflow:hidden}
+summary{list-style:none;padding:12px 14px;font-size:18px;font-weight:800;display:flex;align-items:center;gap:8px;cursor:pointer;min-height:56px}
+summary::-webkit-details-marker{display:none}
+summary .sn{flex:1;line-height:1.15} summary .sn small{display:block;font-size:12px;font-weight:600;color:var(--mute)}
+summary .cnt{font-size:13px;font-weight:700;color:var(--mute);background:var(--wash);border-radius:8px;padding:2px 8px}
+summary .cnt.done{background:#dff1e1;color:#1d5e22}
+details[open] summary{border-bottom:1px solid var(--line);background:#f7f9fb}
+.sec{padding:6px 14px 14px}
+.f{margin-top:10px}
+.f label{display:block;font-size:15px;font-weight:600;line-height:1.2;margin-bottom:4px}
+.f label small{display:block;font-weight:400;color:var(--mute);font-size:13px}
+.f label .req{color:var(--bad)}
+.f input[type=text],.f input[type=tel],.f input[type=number],.f input[type=date],.f input[type=month],.f select,.f textarea{width:100%;min-height:50px;border:1.5px solid #c3cad5;border-radius:12px;padding:8px 12px;background:#fff;font-size:17px}
+.f textarea{min-height:84px}
+.f.err input,.f.err select{border-color:var(--bad);background:#fff6f5}
+.unit{display:flex;gap:8px} .unit input{flex:1} .unit select{width:40%;flex:none}
+.chk{display:flex;gap:10px;align-items:flex-start;background:var(--wash);border-radius:12px;padding:10px 12px}
+.chk input{width:26px;height:26px;flex:none;margin:2px 0 0;accent-color:var(--leaf)}
+.chk span{font-size:15px;line-height:1.3}
+.calc{margin-top:10px;background:#eaf1fa;border-radius:12px;padding:8px 12px;font-size:15px;line-height:1.35}
+.calc b{font-size:17px}
+.trio{display:grid;grid-template-columns:1fr;gap:6px;margin-top:10px;padding:10px;border-radius:12px;background:#f7f9fb}
+.trio .ttl{font-weight:800;font-size:15px}
+.trio .row2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.trio label{font-size:13px;color:var(--mute);margin:0}
+.trio select,.trio input{width:100%;min-height:46px;border:1.5px solid #c3cad5;border-radius:10px;padding:6px 8px;background:#fff;font-size:16px}
+.photos{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.photos .ph{position:relative;width:92px;height:92px;border-radius:10px;overflow:hidden;background:var(--wash)}
+.photos img{width:100%;height:100%;object-fit:cover}
+.photos .ph button{position:absolute;top:4px;right:4px;width:30px;height:30px;border:0;border-radius:8px;background:rgba(20,33,61,.8);color:#fff;font-size:16px}
+.addph{border:2px dashed #b7c0cc;border-radius:12px;background:#fff;min-height:56px;width:100%;font-size:17px;font-weight:700;margin-top:8px}
+.del{margin-top:24px;border:1.5px solid var(--bad);color:var(--bad);background:#fff;border-radius:12px;min-height:50px;width:100%;font-weight:700}
+.guide{font-size:13px;color:var(--mute);line-height:1.35;margin-top:10px}
+/* list */
+.exp{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.exp button{border:0;border-radius:12px;min-height:58px;font-weight:800;font-size:16px;line-height:1.1;background:var(--wash)}
+.exp button small{display:block;font-weight:600;font-size:12px;color:var(--mute)}
+.exp .zip{grid-column:1/-1;background:var(--water);color:#fff} .exp .zip small{color:#dfe8f5}
+.backup{margin:10px 0;padding:10px 12px;border-radius:12px;font-size:14px;line-height:1.3}
+.backup.ok{background:#e3f2e5} .backup.warn{background:#fff3cf}
+.rec{display:flex;gap:10px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+.rec .dot{width:16px;height:16px;border-radius:50%;flex:none;border:2px solid #fff;box-shadow:0 0 0 1px #9aa3b2}
+.rec .t{flex:1;line-height:1.2} .rec .t b{font-size:16px} .rec .t small{display:block;color:var(--mute);font-size:13px}
+.empty{padding:30px 10px;text-align:center;color:var(--mute);font-size:16px}
+/* overlays */
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--sb) + 150px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;z-index:1500;font-size:15px;max-width:90vw;text-align:center;line-height:1.3}
+.avg{position:fixed;inset:0;z-index:1400;background:rgba(20,33,61,.72);display:grid;place-items:center;padding:20px}
+.avg .box{background:#fff;border-radius:18px;padding:18px;width:min(420px,100%);text-align:center}
+.avg .box b{font-size:20px;display:block}
+.avg .bar{height:10px;border-radius:5px;background:var(--wash);margin:12px 0;overflow:hidden}
+.avg .bar i{display:block;height:100%;width:0;background:var(--water);transition:width .3s linear}
+.avg .box p{margin:4px 0;color:var(--mute);font-size:15px}
+.avg .box button{margin-top:10px;border:0;border-radius:12px;background:var(--wash);min-height:48px;padding:0 18px;font-weight:700}
+#loading{position:fixed;inset:0;z-index:2000;background:var(--water);color:#fff;display:grid;place-items:center;text-align:center;font-size:20px;font-weight:600;padding:24px}
+#loading small{display:block;font-size:14px;opacity:.8;font-weight:400}
+.leaflet-popup-content{font-size:15px;line-height:1.3;margin:10px 12px}
+.leaflet-popup-content button{margin-top:6px;border:0;border-radius:10px;background:var(--water);color:#fff;font-weight:700;min-height:40px;padding:0 14px}
+@media (min-width:900px){
+  .top{right:auto;width:470px;left:calc(var(--sl) + 16px);top:calc(var(--st) + 16px)}
+  .dock{right:auto;width:470px;left:calc(var(--sl) + 16px);bottom:calc(var(--sb) + 16px)}
+  .panel{left:auto;width:520px;top:calc(var(--st) + 12px);bottom:calc(var(--sb) + 12px);right:calc(var(--sr) + 12px);border-radius:20px;box-shadow:0 8px 30px rgba(20,33,61,.35);transform:translateX(110%)}
+  .panel.open{transform:none}
+  .phead{padding-top:10px;border-radius:20px 20px 0 0}
+}
+@media (prefers-reduced-motion:reduce){.panel{transition:none}}
+</style>
+</head>
+<body>
+<div id="map" role="application" aria-label="Survey map"></div>
+
+<header class="top">
+  <div class="brand"><b>शेत नोंद</b><span>Field survey · Datli &amp; Musalgaon</span></div>
+  <button id="gpsChip" class="pill" aria-label="GPS status">GPS<small>बंद · off</small></button>
+  <button id="listBtn" class="pill" aria-label="Saved records"><span id="nRec">0</span><small>नोंदी · saved</small></button>
+</header>
+
+<div class="dock">
+  <div id="tapHint" class="tiphint">किंवा नकाशावर टॅप करा — or tap the map to place a point</div>
+  <button id="recTap" class="big second hidden">या बिंदूवर नोंद करा<small>Record at the tapped point</small></button>
+  <button id="recGPS" class="big primary">मी उभा आहे तिथे नोंद करा<small>Record where I stand (10 s GPS average)</small></button>
+</div>
+
+<!-- record form -->
+<section id="form" class="panel" aria-label="Record form">
+  <div class="phead">
+    <button id="fClose" class="iconbtn" aria-label="Close without saving">×</button>
+    <h2 id="fTitle">नवीन नोंद<small>New record</small></h2>
+    <button id="fSave" class="savebtn">जतन करा · Save</button>
+  </div>
+  <div class="pbody" id="fBody"></div>
+</section>
+
+<!-- list + export -->
+<section id="list" class="panel" aria-label="Saved records">
+  <div class="phead">
+    <button id="lClose" class="iconbtn" aria-label="Close">×</button>
+    <h2>जतन केलेल्या नोंदी<small>Saved on this phone</small></h2>
+  </div>
+  <div class="pbody">
+    <div id="backup" class="backup"></div>
+    <div class="exp">
+      <button class="zip" id="xZip">सर्व नोंदी + फोटो डाउनलोड करा<small>Download ZIP (CSV + GeoJSON + photos)</small></button>
+      <button id="xCsv">CSV<small>table only</small></button>
+      <button id="xGeo">GeoJSON<small>points for QGIS</small></button>
+      <button id="xShare" style="grid-column:1/-1">शेअर करा · Share ZIP<small>WhatsApp / Drive / email</small></button>
+    </div>
+    <div class="f"><label for="surveyor">सर्वेक्षकाचे नाव · Surveyor name<small>Saved with every record</small></label><input id="surveyor" type="text" autocomplete="name"></div>
+    <div id="recList"></div>
+  </div>
+</section>
+
+<div id="loading">नकाशा लोड होत आहे…<small>Loading field boundaries</small></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+(function () {
+'use strict';
+// ------------------------------------------------------------------ config
+const CFG = {
+  villages: [
+    { name: 'Datli', mr: 'दातली', code: 'DAT', idField: 'PIN',
+      urls: ['villages/Datli.geojson', 'https://raw.githubusercontent.com/somdeepkundu/Bhumi-Buddhimatta/main/villages/Datli.geojson'] },
+    { name: 'Musalgaon', mr: 'मुसळगाव', code: 'MUS', idField: 'Surevy No',
+      urls: ['villages/Musalgaon.geojson', 'https://raw.githubusercontent.com/somdeepkundu/Bhumi-Buddhimatta/main/villages/Musalgaon.geojson'] }
+  ],
+  center: [19.8264, 74.0711], goodAcc: 10, okAcc: 20, avgSeconds: 10, credit: 'RuDRA Lab, IIT Bombay'
+};
+proj4.defs('EPSG:32643', '+proj=utm +zone=43 +datum=WGS84 +units=m +no_defs');
+
+const CROPS = [
+  ['onion', 'कांदा', 'Onion', '#8e3b8f'], ['sugarcane', 'ऊस', 'Sugarcane', '#1b7837'], ['wheat', 'गहू', 'Wheat', '#d9a300'],
+  ['soybean', 'सोयाबीन', 'Soybean', '#7fbc41'], ['maize', 'मका', 'Maize', '#f1a340'], ['bajra', 'बाजरी', 'Pearl millet', '#b35806'],
+  ['jowar', 'ज्वारी', 'Sorghum', '#8c510a'], ['gram', 'हरभरा', 'Chickpea', '#c7a76c'], ['tomato', 'टोमॅटो', 'Tomato', '#d73027'],
+  ['grapes', 'द्राक्ष', 'Grapes', '#542788'], ['pomegranate', 'डाळिंब', 'Pomegranate', '#e7298a'], ['banana', 'केळी', 'Banana', '#66bd63'],
+  ['cotton', 'कापूस', 'Cotton', '#bababa'], ['groundnut', 'भुईमूग', 'Groundnut', '#a6761d'], ['vegetables', 'भाजीपाला', 'Vegetables', '#1a9850'],
+  ['fodder', 'चारा', 'Fodder', '#4d9221'], ['fallow', 'पडीक / रिकामे', 'Fallow / empty', '#9e9e9e'], ['other', 'इतर', 'Other', '#4575b4']
+];
+const CROP = Object.fromEntries(CROPS.map(c => [c[0], { mr: c[1], en: c[2], col: c[3] }]));
+const cropOpts = CROPS.map(c => [c[0], c[1] + ' · ' + c[2]]);
+const AREA_UNITS = [['guntha', 'गुंठा · guntha'], ['acre', 'एकर · acre'], ['ha', 'हेक्टर · ha']];
+const AREA_M2 = { guntha: 101.17, acre: 4046.86, ha: 10000 };
+const HIST = [['k25', 'खरीप 2025', 'Kharif 2025 · Jun–Oct'], ['r25', 'रब्बी 2025-26', 'Rabi 2025-26 · Nov–Feb'], ['s26', 'उन्हाळी 2026', 'Summer 2026 · Mar–May']];
+
+// field schema: [key, type, marathi, english, extra]
+const SECTIONS = [
+  { id: 'plot', mr: 'शेत आणि शेतकरी', en: 'Plot & farmer', fields: [
+    ['consent', 'check', 'शेतकऱ्याने माहिती देण्यास व वापरण्यास संमती दिली', 'Farmer agreed to share this information for research', { req: 1 }],
+    ['gut_no', 'text', 'गट नंबर (शेतकरी सांगतो तो)', 'Gut no as the farmer says it — checked later against the map parcel', { req: 1 }],
+    ['farmer', 'text', 'शेतकऱ्याचे नाव', 'Farmer name (optional)'],
+    ['phone', 'tel', 'मोबाईल नंबर', 'Phone (optional — for a follow-up call after harvest)'],
+    ['crop_area', 'area', 'या पिकाखालील क्षेत्र', 'Area under this crop strip'],
+    ['n_crops', 'select', 'या गटात किती पिके आहेत?', 'How many crops in this Gut now?', { opts: [['1', '1'], ['2', '2'], ['3', '3'], ['4+', '4 किंवा जास्त · 4+']] }]
+  ]},
+  { id: 'crop', mr: 'सध्याचे पीक', en: 'Current crop & calendar', fields: [
+    ['crop', 'select', 'पीक', 'Crop at this point', { req: 1, opts: cropOpts }],
+    ['crop_other', 'text', 'इतर पीक / जात', 'Other crop name or variety'],
+    ['duration_days', 'number', 'पिकाचा कालावधी (दिवस)', 'Crop duration in days (from variety), if known'],
+    ['sown', 'date', 'पेरणी / लागवड तारीख', 'Sowing or transplanting date'],
+    ['harvest', 'date', 'काढणी तारीख (अपेक्षित / झालेली)', 'Harvest date — expected or actual'],
+    ['stage', 'select', 'सध्याची अवस्था', 'Stage today', { opts: [['sowing', 'उगवण · germination'], ['vegetative', 'वाढ · vegetative'], ['flowering', 'फुलोरा · flowering'], ['filling', 'फळ/कांदा/दाणे भरणे · fruit/bulb/grain filling'], ['mature', 'पक्व · mature'], ['harvested', 'काढणी झाली · harvested'], ['prepared', 'मशागत / पडीक · land prepared or fallow']] }],
+    ['intercrop', 'text', 'आंतरपीक असल्यास', 'Intercrop, if any']
+  ]},
+  { id: 'hist', mr: 'मागील पिके (जून 2025 पासून)', en: 'Crops since June 2025 — labels the NDVI curve', fields: [
+    ['_hist', 'history']
+  ]},
+  { id: 'water', mr: 'पाणी वापर', en: 'Irrigation — water used', fields: [
+    ['irr_source', 'select', 'पाण्याचा स्रोत', 'Water source', { opts: [['well', 'विहीर · open well'], ['borewell', 'बोअरवेल · borewell'], ['canal', 'कालवा · canal'], ['farmpond', 'शेततळे · farm pond'], ['river', 'नदी / ओढा · river or stream'], ['rainfed', 'फक्त पाऊस · rainfed only']] }],
+    ['irr_method', 'select', 'पाणी देण्याची पद्धत', 'Irrigation method', { opts: [['flood', 'पाट / वाफे · flood/basin'], ['furrow', 'सरी · furrow'], ['drip', 'ठिबक · drip'], ['sprinkler', 'तुषार · sprinkler'], ['none', 'नाही · none']] }],
+    ['pump_hp', 'number', 'पंप (HP)', 'Pump size in HP'],
+    ['irr_hours', 'number', 'एका पाळीला किती तास', 'Hours of pumping per irrigation for this crop area'],
+    ['irr_interval', 'number', 'किती दिवसांनी पाणी', 'Days between irrigations'],
+    ['irr_count', 'number', 'आतापर्यंत किती पाळ्या', 'Irrigations given so far this season'],
+    ['bucket_litres', 'number', 'बादली चाचणी: बादली (लिटर)', 'Bucket test: bucket size (litres) — if a pump is running'],
+    ['bucket_seconds', 'number', 'बादली भरायला सेकंद', 'Bucket test: seconds to fill'],
+    ['drip_lph', 'number', 'ठिबक: ड्रिपर लिटर/तास', 'Drip: emitter discharge (L/h)'],
+    ['drip_emitters', 'number', 'ठिबक: या क्षेत्रात ड्रिपर संख्या', 'Drip: number of emitters in this area'],
+    ['_water_calc', 'calc'],
+    ['water_short', 'select', 'पाणी कमी पडले का?', 'Did water run short this season?', { opts: [['no', 'नाही · no'], ['some', 'थोडे · some irrigations missed'], ['severe', 'खूप · crop suffered']] }],
+    ['water_short_from', 'month', 'कधीपासून कमी पडले', 'From which month']
+  ]},
+  { id: 'yield', mr: 'उत्पादन', en: 'Yield — last completed harvest', fields: [
+    ['yld_season', 'select', 'कोणत्या हंगामाचे उत्पादन', 'Which season', { opts: [['s26', 'उन्हाळी 2026 · Summer 2026'], ['r25', 'रब्बी 2025-26 · Rabi 2025-26'], ['k25', 'खरीप 2025 · Kharif 2025'], ['k26', 'खरीप 2026 · Kharif 2026'], ['other', 'इतर · other']] }],
+    ['yld_crop', 'select', 'पीक', 'Crop harvested', { opts: cropOpts }],
+    ['yld_qty', 'number', 'एकूण उत्पादन', 'Total quantity harvested (sold + kept)'],
+    ['yld_unit', 'select', 'एकक', 'Unit', { opts: [['quintal', 'क्विंटल · quintal'], ['kg', 'किलो · kg'], ['tonne', 'टन · tonne'], ['bag', 'पोते · bag'], ['crate', 'कॅरेट · crate']] }],
+    ['yld_unit_kg', 'number', 'एका पोत्याचे / कॅरेटचे वजन (किलो)', 'kg per bag or crate'],
+    ['yld_area', 'area', 'किती क्षेत्रातून', 'From how much area'],
+    ['_yield_calc', 'calc'],
+    ['yld_loss', 'select', 'नुकसान झाले का?', 'Any loss?', { opts: [['none', 'नाही · none'], ['pest', 'कीड / रोग · pest or disease'], ['weather', 'गारपीट / अवकाळी · hail or untimely rain'], ['water', 'पाणी कमी · water shortage'], ['price', 'भाव नसल्याने काढले नाही · not harvested (price)'], ['other', 'इतर · other']] }],
+    ['yld_source', 'select', 'आकडा कशावरून?', 'Where does the number come from?', { opts: [['receipt', 'पट्टी / पावती · sale receipt'], ['memory', 'आठवणीतून · farmer memory'], ['guess', 'अंदाज · rough guess']] }],
+    ['yld_expected', 'text', 'सध्याच्या पिकाचे अपेक्षित उत्पादन', 'Expected yield of the current crop (with unit)']
+  ]},
+  { id: 'notes', mr: 'फोटो आणि टीप', en: 'Photos & notes', fields: [
+    ['_photos', 'photos'],
+    ['notes', 'textarea', 'टीप', 'Anything unusual — mixed strips, recent cutting, disease, water source shared…']
+  ]}
+];
+
+// ------------------------------------------------------------------ helpers
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const num = v => { const x = parseFloat(v); return isFinite(x) ? x : null; };
+let toastT = null;
+function toast(msg, ms) {
+  let el = document.querySelector('.toast');
+  if (!el) { el = document.createElement('div'); el.className = 'toast'; document.body.appendChild(el); }
+  el.textContent = msg; el.classList.remove('hidden'); clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.add('hidden'), ms || 3000);
+}
+const accClass = a => (a == null ? 'bad' : a <= CFG.goodAcc ? 'ok' : a <= CFG.okAcc ? 'warn' : 'bad');
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate());
+
+// ------------------------------------------------------------------ storage (IndexedDB)
+const DB = {
+  db: null,
+  open() {
+    return new Promise((res, rej) => {
+      const r = indexedDB.open('shetNond', 1);
+      r.onupgradeneeded = () => { const d = r.result; d.createObjectStore('records', { keyPath: 'id' }); d.createObjectStore('photos', { keyPath: 'key' }); };
+      r.onsuccess = () => { DB.db = r.result; res(); }; r.onerror = () => rej(r.error);
+    });
+  },
+  req(store, mode, fn) {
+    return new Promise((res, rej) => { const q = fn(DB.db.transaction(store, mode).objectStore(store)); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
+  },
+  put: (s, v) => DB.req(s, 'readwrite', o => o.put(v)),
+  get: (s, k) => DB.req(s, 'readonly', o => o.get(k)),
+  all: s => DB.req(s, 'readonly', o => o.getAll()),
+  del: (s, k) => DB.req(s, 'readwrite', o => o.delete(k))
+};
+const LS = { get: (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } },
+             set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* storage blocked */ } } };
+
+// ------------------------------------------------------------------ parcels
+let PARCELS = [];
+async function fetchFirst(urls) {
+  for (const u of urls) { try { const r = await fetch(u); if (r.ok) return await r.json(); } catch (e) { /* try next */ } }
+  throw new Error('Could not load ' + urls[0]);
+}
+function projected(gj) {
+  const n = (gj.crs && gj.crs.properties && gj.crs.properties.name) || '';
+  if (/32643/.test(n)) return true;
+  let c = gj.features[0].geometry.coordinates; while (Array.isArray(c[0])) c = c[0];
+  return Math.abs(c[0]) > 180;
+}
+function reproj(g) {
+  const f = p => proj4('EPSG:32643', 'EPSG:4326', [p[0], p[1]]);
+  if (g.type === 'Polygon') g.coordinates = g.coordinates.map(r => r.map(f));
+  else if (g.type === 'MultiPolygon') g.coordinates = g.coordinates.map(pl => pl.map(r => r.map(f)));
+}
+function bboxOf(g) {
+  let a = [Infinity, Infinity, -Infinity, -Infinity];
+  const polys = g.type === 'Polygon' ? [g.coordinates] : g.coordinates;
+  for (const pl of polys) for (const p of pl[0]) { if (p[0] < a[0]) a[0] = p[0]; if (p[1] < a[1]) a[1] = p[1]; if (p[0] > a[2]) a[2] = p[0]; if (p[1] > a[3]) a[3] = p[1]; }
+  return a;
+}
+function inRing(x, y, r) {
+  let ins = false;
+  for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
+    const xi = r[i][0], yi = r[i][1], xj = r[j][0], yj = r[j][1];
+    if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) ins = !ins;
+  }
+  return ins;
+}
+function parcelAt(lat, lng) {
+  for (const p of PARCELS) {
+    const b = p.bbox; if (lng < b[0] || lng > b[2] || lat < b[1] || lat > b[3]) continue;
+    const polys = p.geom.type === 'Polygon' ? [p.geom.coordinates] : p.geom.coordinates;
+    for (const pl of polys) { if (inRing(lng, lat, pl[0]) && !pl.slice(1).some(h => inRing(lng, lat, h))) return p; }
+  }
+  return null;
+}
+async function loadParcels() {
+  const fcs = [];
+  for (const v of CFG.villages) {
+    const gj = await fetchFirst(v.urls);
+    const proj = projected(gj);
+    for (const f of gj.features) {
+      if (!f.geometry) continue;
+      if (proj) reproj(f.geometry);
+      const pid = f.properties ? f.properties[v.idField] : '';
+      PARCELS.push({ v: v.name, code: v.code, id: (pid == null || pid === '' || pid !== pid) ? '—' : String(pid), geom: f.geometry, bbox: bboxOf(f.geometry) });
+      f.properties = { v: v.name, id: pid };
+    }
+    delete gj.crs; fcs.push(gj);
+  }
+  return fcs;
+}
+
+// ------------------------------------------------------------------ map & GPS
+let map, draft = null, me = null, accC = null, lastFix = null, watchId = null, recLayer;
+function startWatch() {
+  if (watchId !== null) return;
+  if (!window.isSecureContext) { toast('GPS साठी https:// लिंक उघडा — open the https:// link for GPS', 6000); return; }
+  if (!navigator.geolocation) { toast('या डिव्हाइसवर GPS नाही — no GPS on this device'); return; }
+  watchId = navigator.geolocation.watchPosition(onPos, e => {
+    toast(e.code === 1 ? 'ब्राउझरमध्ये लोकेशन परवानगी द्या — allow location access' : 'GPS मिळत नाही — no GPS fix yet', 5000);
+  }, { enableHighAccuracy: true, maximumAge: 2000, timeout: 30000 });
+}
+let centred = false;
+function onPos(p) {
+  lastFix = { lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy, t: Date.now() };
+  const ll = [lastFix.lat, lastFix.lng];
+  if (!me) {
+    accC = L.circle(ll, { radius: lastFix.acc, color: '#1a73e8', weight: 1, fillColor: '#1a73e8', fillOpacity: 0.12, interactive: false }).addTo(map);
+    me = L.circleMarker(ll, { radius: 9, color: '#fff', weight: 3, fillColor: '#1a73e8', fillOpacity: 1, interactive: false }).addTo(map);
+  } else { me.setLatLng(ll); accC.setLatLng(ll).setRadius(lastFix.acc); }
+  if (!centred) { map.setView(ll, 17); centred = true; }
+  const c = $('gpsChip'); c.className = 'pill ' + accClass(lastFix.acc);
+  c.innerHTML = '±' + Math.round(lastFix.acc) + ' m<small>GPS</small>';
+}
+function averageFix(seconds) {
+  return new Promise((resolve, reject) => {
+    if (!window.isSecureContext || !navigator.geolocation) { reject(new Error('GPS unavailable')); return; }
+    const fixes = [], t0 = Date.now();
+    const ov = document.createElement('div'); ov.className = 'avg';
+    ov.innerHTML = '<div class="box"><b>जागा निश्चित करत आहे…</b><p>Averaging GPS — stay still, phone flat</p><div class="bar"><i></i></div><p id="avgTxt">0 fixes</p><button>रद्द करा · Cancel</button></div>';
+    document.body.appendChild(ov);
+    const bar = ov.querySelector('i'), txt = ov.querySelector('#avgTxt');
+    let done = false;
+    const finish = cancelled => {
+      if (done) return; done = true; navigator.geolocation.clearWatch(wid); clearInterval(tick); ov.remove();
+      if (cancelled) { reject(new Error('cancelled')); return; }
+      if (!fixes.length) { reject(new Error('no GPS fix')); return; }
+      const best = Math.min(...fixes.map(f => f.accuracy));
+      const use = fixes.filter(f => f.accuracy <= Math.max(CFG.goodAcc, best * 1.5));
+      let sw = 0, la = 0, ln = 0;
+      for (const f of use) { const w = 1 / (f.accuracy * f.accuracy); sw += w; la += w * f.latitude; ln += w * f.longitude; }
+      const accs = use.map(f => f.accuracy).sort((a, b) => a - b);
+      resolve({ lat: la / sw, lng: ln / sw, acc: accs[Math.floor(accs.length / 2)], n: use.length, method: 'gps_avg' });
+    };
+    ov.querySelector('button').onclick = () => finish(true);
+    const wid = navigator.geolocation.watchPosition(p => {
+      fixes.push(p.coords); txt.textContent = fixes.length + ' fixes · best ±' + Math.round(Math.min(...fixes.map(f => f.accuracy))) + ' m';
+    }, () => {}, { enableHighAccuracy: true, maximumAge: 0, timeout: 30000 });
+    const tick = setInterval(() => {
+      const s = (Date.now() - t0) / 1000; bar.style.width = Math.min(100, s / seconds * 100) + '%';
+      if (s >= seconds && fixes.length >= 3) finish(false);
+      if (s >= seconds + 20) finish(false);
+    }, 250);
+  });
+}
+
+// ------------------------------------------------------------------ records
+let RECS = [];
+function nextId(code) {
+  const day = ymd(new Date()), pre = code + '-' + day + '-';
+  const n = RECS.filter(r => r.id.startsWith(pre)).map(r => parseInt(r.id.slice(pre.length), 10)).reduce((a, b) => Math.max(a, b), 0);
+  return pre + String(n + 1).padStart(3, '0');
+}
+function drawRecords() {
+  recLayer.clearLayers();
+  for (const r of RECS) {
+    const c = CROP[r.crop] || CROP.other;
+    L.circleMarker([r.lat, r.lng], { radius: 9, color: '#fff', weight: 2.5, fillColor: c.col, fillOpacity: 1 })
+      .bindPopup(() => {
+        const d = document.createElement('div');
+        d.innerHTML = '<b>' + esc(r.id) + '</b><br>' + esc(c.mr + ' · ' + c.en) + '<br>गट ' + esc(r.gut_no || '—') + (r.map_parcel ? ' · map ' + esc(r.map_parcel) : '') + '<br>';
+        const b = document.createElement('button'); b.textContent = 'उघडा · Open'; b.onclick = () => { map.closePopup(); openForm(r); };
+        d.appendChild(b); return d;
+      }).addTo(recLayer);
+  }
+  $('nRec').textContent = RECS.length;
+}
+function derived(r) {
+  const out = {}, area = (v, u) => { const x = num(v); return x && x > 0 ? x * AREA_M2[u || 'guntha'] : null; };
+  const a = area(r.crop_area, r.crop_area_unit);
+  const bl = num(r.bucket_litres), bs = num(r.bucket_seconds), hrs = num(r.irr_hours);
+  if (bl > 0 && bs > 0) out.flow_lps = +(bl / bs).toFixed(2);
+  let vol = null;
+  if (r.irr_method === 'drip' && num(r.drip_lph) > 0 && num(r.drip_emitters) > 0 && hrs > 0) vol = num(r.drip_lph) * num(r.drip_emitters) * hrs;
+  else if (out.flow_lps && hrs > 0) vol = out.flow_lps * hrs * 3600;
+  if (vol) out.vol_m3_per_irr = +(vol / 1000).toFixed(1);
+  if (vol && a) {
+    out.depth_mm_per_irr = +(vol / a).toFixed(1);
+    const n = num(r.irr_count); if (n > 0) out.season_mm_so_far = Math.round(out.depth_mm_per_irr * n);
+  }
+  const q = num(r.yld_qty), per = { quintal: 100, kg: 1, tonne: 1000, bag: num(r.yld_unit_kg), crate: num(r.yld_unit_kg) }[r.yld_unit || 'quintal'];
+  const ya = area(r.yld_area, r.yld_area_unit) || a;
+  if (q > 0 && per) { out.yield_kg = Math.round(q * per); if (ya) out.yield_t_ha = +((q * per / 1000) / (ya / 10000)).toFixed(2); }
+  return out;
+}
+
+// ------------------------------------------------------------------ form
+let cur = null, curPhotos = [], dirty = false, isNew = true;
+function fieldHTML(f) {
+  const [k, type, mr, en, x] = f; const o = x || {}, v = cur[k] == null ? '' : cur[k];
+  const lab = '<label for="i_' + k + '">' + esc(mr) + (o.req ? ' <span class="req">*</span>' : '') + '<small>' + esc(en) + '</small></label>';
+  if (type === 'check') return '<div class="f" data-k="' + k + '"><label class="chk"><input type="checkbox" id="i_' + k + '" data-k="' + k + '"' + (v ? ' checked' : '') + '><span><b>' + esc(mr) + '</b>' + (o.req ? ' <span class="req">*</span>' : '') + '<br>' + esc(en) + '</span></label></div>';
+  if (type === 'select') {
+    let s = '<select id="i_' + k + '" data-k="' + k + '"><option value="">— निवडा · choose —</option>';
+    for (const [ov, ol] of o.opts) s += '<option value="' + esc(ov) + '"' + (String(v) === ov ? ' selected' : '') + '>' + esc(ol) + '</option>';
+    return '<div class="f" data-k="' + k + '">' + lab + s + '</select></div>';
+  }
+  if (type === 'area') {
+    const u = cur[k + '_unit'] || 'guntha';
+    let s = '<div class="unit"><input type="number" inputmode="decimal" step="any" min="0" id="i_' + k + '" data-k="' + k + '" value="' + esc(v) + '"><select data-k="' + k + '_unit">';
+    for (const [ov, ol] of AREA_UNITS) s += '<option value="' + ov + '"' + (u === ov ? ' selected' : '') + '>' + ol + '</option>';
+    return '<div class="f" data-k="' + k + '">' + lab + s + '</select></div></div>';
+  }
+  if (type === 'textarea') return '<div class="f" data-k="' + k + '">' + lab + '<textarea id="i_' + k + '" data-k="' + k + '">' + esc(v) + '</textarea></div>';
+  if (type === 'calc') return '<div class="calc" id="' + k + '"></div>';
+  if (type === 'history') {
+    let s = '';
+    for (const [hk, hmr, hen] of HIST) {
+      s += '<div class="trio"><div class="ttl">' + esc(hmr) + ' <small style="font-weight:600;color:var(--mute)">' + esc(hen) + '</small></div>';
+      s += '<select data-k="h_' + hk + '_crop" aria-label="' + esc(hen) + ' crop"><option value="">— पीक · crop —</option>' +
+        cropOpts.map(([ov, ol]) => '<option value="' + ov + '"' + (cur['h_' + hk + '_crop'] === ov ? ' selected' : '') + '>' + esc(ol) + '</option>').join('') + '</select>';
+      s += '<div class="row2"><div><label>पेरणी · sown</label><input type="month" data-k="h_' + hk + '_sown" value="' + esc(cur['h_' + hk + '_sown'] || '') + '"></div>' +
+           '<div><label>काढणी · harvested</label><input type="month" data-k="h_' + hk + '_harv" value="' + esc(cur['h_' + hk + '_harv'] || '') + '"></div></div></div>';
+    }
+    return s + '<div class="guide">एकाच गटात वेगवेगळी पिके असल्यास फक्त या बिंदूवरील पट्ट्याचे पीक लिहा. — If the Gut had several crops, record only the strip at this point.</div>';
+  }
+  if (type === 'photos') {
+    return '<div class="f"><label>फोटो<small>One close-up of the crop and one wide shot of the strip</small></label><div class="photos" id="phList"></div>' +
+      '<button class="addph" id="addPh" type="button">📷 फोटो घ्या · Take photo</button><input id="phIn" type="file" accept="image/*" capture="environment" class="hidden"></div>';
+  }
+  const t = type === 'number' ? 'number" inputmode="decimal" step="any" min="0' : type;
+  return '<div class="f" data-k="' + k + '">' + lab + '<input type="' + t + '" id="i_' + k + '" data-k="' + k + '" value="' + esc(v) + '"' + (type === 'text' ? ' autocomplete="off"' : '') + '></div>';
+}
+function sectionCount(sec) {
+  let n = 0, t = 0;
+  for (const f of sec.fields) {
+    if (f[1] === 'calc') continue;
+    if (f[1] === 'history') { for (const [hk] of HIST) { t++; if (cur['h_' + hk + '_crop']) n++; } continue; }
+    if (f[1] === 'photos') { t++; if (curPhotos.length) n++; continue; }
+    t++; if (cur[f[0]] !== undefined && cur[f[0]] !== '' && cur[f[0]] !== false) n++;
+  }
+  return [n, t];
+}
+function updateCounts() {
+  for (const sec of SECTIONS) {
+    const [n, t] = sectionCount(sec), el = document.querySelector('[data-cnt="' + sec.id + '"]');
+    if (el) { el.textContent = n + '/' + t; el.classList.toggle('done', n > 0 && n >= Math.min(t, 3)); }
+  }
+}
+function updateCalcs() {
+  const d = derived(cur), w = $('_water_calc'), y = $('_yield_calc');
+  if (w) {
+    const parts = [];
+    if (d.flow_lps) parts.push('पंपाचा प्रवाह · flow <b>' + d.flow_lps + ' L/s</b>');
+    if (d.vol_m3_per_irr) parts.push('एका पाळीला · per irrigation <b>' + d.vol_m3_per_irr + ' m³</b>');
+    if (d.depth_mm_per_irr) parts.push('≈ <b>' + d.depth_mm_per_irr + ' mm</b> पाणी प्रति पाळी · depth per irrigation');
+    if (d.season_mm_so_far) parts.push('हंगामात आतापर्यंत · season so far <b>' + d.season_mm_so_far + ' mm</b>');
+    w.innerHTML = parts.length ? parts.join('<br>') : 'बादली चाचणी / ठिबक माहिती + तास + क्षेत्र भरल्यावर पाणी (mm) दिसेल.<br>Fill bucket test or drip rate, hours and crop area to see water depth in mm.';
+  }
+  if (y) {
+    y.innerHTML = d.yield_kg ? 'एकूण · total <b>' + d.yield_kg.toLocaleString('en-IN') + ' kg</b>' + (d.yield_t_ha ? ' · <b>' + d.yield_t_ha + ' t/ha</b>' : '') :
+      'उत्पादन + एकक + क्षेत्र भरल्यावर t/ha दिसेल. — Fill quantity, unit and area to see t/ha.';
+  }
+}
+function locCard() {
+  const cls = accClass(cur.acc), p = cur.map_village ? cur.map_village + ' · map parcel ' + (cur.map_parcel === '—' ? '— (no number in layer)' : cur.map_parcel) : 'सर्वे शेताबाहेर · outside surveyed parcels';
+  return '<div class="loc"><div class="id">' + esc(cur.id) + '</div><button type="button" id="reLoc">GPS पुन्हा<br>Re-average</button>' +
+    '<div class="meta">' + esc(p) + '<br>' + cur.lat.toFixed(6) + ', ' + cur.lng.toFixed(6) +
+    '<span class="badge ' + cls + '">±' + (cur.acc == null ? '?' : Math.round(cur.acc)) + ' m</span> ' +
+    (cur.loc_method === 'map_tap' ? 'नकाशावरून · from map tap' : (cur.n_fixes || 1) + ' fixes') + '</div></div>' +
+    (cls !== 'ok' ? '<div class="guide">⚠ अचूकता कमी — उघड्या आकाशाखाली थांबा आणि पुन्हा प्रयत्न करा. Accuracy is poor: stand in the open, away from trees and walls, and re-average.</div>' : '') +
+    '<div class="guide">पट्ट्याच्या कडेपासून किमान 15 m आत उभे रहा. Stand at least 15 m inside the crop strip so the satellite pixel is pure. Write <b>' + esc(cur.id) + '</b> on a slip and photograph it with the crop.</div>';
+}
+function setLocation(loc) {
+  const p = parcelAt(loc.lat, loc.lng);
+  Object.assign(cur, { lat: loc.lat, lng: loc.lng, acc: loc.acc, n_fixes: loc.n || 1, loc_method: loc.method,
+    map_village: p ? p.v : '', map_parcel: p ? p.id : '' });
+}
+function renderForm() {
+  $('fTitle').innerHTML = (isNew ? 'नवीन नोंद' : 'नोंद बदला') + '<small>' + (isNew ? 'New record' : 'Edit record') + '</small>';
+  let h = locCard();
+  SECTIONS.forEach((sec, i) => {
+    h += '<details' + (i < 2 ? ' open' : '') + '><summary><span class="sn">' + esc(sec.mr) + '<small>' + esc(sec.en) + '</small></span><span class="cnt" data-cnt="' + sec.id + '"></span></summary><div class="sec">';
+    for (const f of sec.fields) h += fieldHTML(f);
+    h += '</div></details>';
+  });
+  if (!isNew) h += '<button class="del" id="fDel" type="button">ही नोंद काढून टाका · Delete this record</button>';
+  $('fBody').innerHTML = h;
+  $('fBody').scrollTop = 0;
+  $('fBody').querySelectorAll('[data-k]').forEach(el => {
+    if (el.tagName === 'DIV') return;
+    el.addEventListener(el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'input', () => {
+      cur[el.dataset.k] = el.type === 'checkbox' ? el.checked : el.value; dirty = true;
+      const f = el.closest('.f'); if (f) f.classList.remove('err');
+      updateCounts(); updateCalcs();
+    });
+  });
+  $('reLoc').onclick = async () => {
+    try { const loc = await averageFix(CFG.avgSeconds); setLocation(loc); dirty = true; renderForm(); if (draft) { map.removeLayer(draft); draft = null; } }
+    catch (e) { if (e.message !== 'cancelled') toast('GPS मिळाले नाही — ' + e.message); }
+  };
+  $('addPh').onclick = () => $('phIn').click();
+  $('phIn').onchange = async e => {
+    for (const file of e.target.files) { try { curPhotos.push({ key: null, blob: await shrink(file), url: null }); dirty = true; } catch (er) { toast('फोटो जतन झाला नाही — photo could not be read'); } }
+    e.target.value = ''; drawPhotos(); updateCounts();
+  };
+  if ($('fDel')) $('fDel').onclick = deleteCurrent;
+  drawPhotos(); updateCounts(); updateCalcs();
+}
+function drawPhotos() {
+  const box = $('phList'); if (!box) return; box.innerHTML = '';
+  curPhotos.forEach((p, i) => {
+    if (!p.url) p.url = URL.createObjectURL(p.blob);
+    const d = document.createElement('div'); d.className = 'ph';
+    d.innerHTML = '<img alt="photo ' + (i + 1) + '" src="' + p.url + '"><button type="button" aria-label="Remove photo">×</button>';
+    d.querySelector('button').onclick = () => { curPhotos.splice(i, 1); dirty = true; drawPhotos(); updateCounts(); };
+    box.appendChild(d);
+  });
+}
+function shrink(file) {
+  return new Promise((res, rej) => {
+    const img = new Image(), u = URL.createObjectURL(file);
+    img.onload = () => {
+      const m = 1600, s = Math.min(1, m / Math.max(img.width, img.height)), c = document.createElement('canvas');
+      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
+      c.toBlob(b => (b ? res(b) : rej(new Error('encode'))), 'image/jpeg', 0.82);
+    };
+    img.onerror = () => { URL.revokeObjectURL(u); rej(new Error('decode')); };
+    img.src = u;
+  });
+}
+async function openForm(rec, loc) {
+  isNew = !rec; dirty = false; curPhotos = [];
+  if (rec) {
+    cur = JSON.parse(JSON.stringify(rec));
+    for (const k of rec.photos || []) { const p = await DB.get('photos', k); if (p) curPhotos.push({ key: k, blob: p.blob, url: null }); }
+  } else {
+    cur = { created: new Date().toISOString() }; setLocation(loc);
+    cur.id = nextId(PARCELS.find(p => p.v === cur.map_village)?.code || 'OUT');
+  }
+  renderForm(); $('form').classList.add('open');
+}
+function closeForm(force) {
+  if (!force && dirty && !confirm('जतन न करता बंद करायचे? Close without saving?')) return;
+  $('form').classList.remove('open'); curPhotos.forEach(p => p.url && URL.revokeObjectURL(p.url)); curPhotos = []; cur = null;
+  if (draft) { map.removeLayer(draft); draft = null; $('recTap').classList.add('hidden'); }
+}
+async function saveCurrent() {
+  const missing = [];
+  for (const sec of SECTIONS) for (const f of sec.fields) if (f[4] && f[4].req && !cur[f[0]]) missing.push(f[0]);
+  document.querySelectorAll('.f.err').forEach(e => e.classList.remove('err'));
+  if (missing.length) {
+    missing.forEach(k => { const el = document.querySelector('.f[data-k="' + k + '"]'); if (el) { el.classList.add('err'); el.closest('details').open = true; } });
+    const first = document.querySelector('.f.err'); if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    toast('* असलेली माहिती भरा — fill the fields marked *'); return;
+  }
+  try {
+    const keys = [];
+    for (let i = 0; i < curPhotos.length; i++) {
+      const p = curPhotos[i]; if (!p.key) p.key = cur.id + '_' + Date.now() + '_' + i;
+      await DB.put('photos', { key: p.key, blob: p.blob }); keys.push(p.key);
+    }
+    for (const k of (RECS.find(r => r.id === cur.id) || {}).photos || []) if (!keys.includes(k)) await DB.del('photos', k);
+    cur.photos = keys; cur.updated = new Date().toISOString(); cur.surveyor = $('surveyor').value || LS.get('surveyor', '');
+    Object.assign(cur, derived(cur));
+    await DB.put('records', cur);
+    RECS = RECS.filter(r => r.id !== cur.id).concat([JSON.parse(JSON.stringify(cur))]);
+    const id = cur.id; drawRecords(); closeForm(true); renderList();
+    toast('जतन झाले · Saved ' + id);
+  } catch (e) { toast('जतन झाले नाही — could not save: ' + e.message, 6000); }
+}
+async function deleteCurrent() {
+  if (!confirm('ही नोंद कायमची काढायची? Delete ' + cur.id + ' permanently?')) return;
+  for (const k of cur.photos || []) await DB.del('photos', k);
+  await DB.del('records', cur.id); RECS = RECS.filter(r => r.id !== cur.id);
+  drawRecords(); closeForm(true); renderList(); toast('काढले · Deleted');
+}
+
+// ------------------------------------------------------------------ list & export
+function renderList() {
+  const last = LS.get('lastExport', ''), since = RECS.filter(r => !last || r.updated > last).length;
+  const b = $('backup');
+  b.className = 'backup ' + (since ? 'warn' : 'ok');
+  b.innerHTML = since ? '⚠ <b>' + since + '</b> नोंदी अजून डाउनलोड केल्या नाहीत. ' + since + ' record(s) exist only on this phone — download the ZIP and share it to Drive today.'
+    : (RECS.length ? '✓ सर्व नोंदी डाउनलोड झाल्या · all records exported' + (last ? ' (' + new Date(last).toLocaleString('en-IN') + ')' : '') : 'अजून नोंद नाही · no records yet');
+  const box = $('recList');
+  if (!RECS.length) { box.innerHTML = '<div class="empty">नकाशावर जा आणि पहिली नोंद करा.<br>Go to the map and record the first point.</div>'; return; }
+  box.innerHTML = '';
+  RECS.slice().sort((a, b) => (b.created > a.created ? 1 : -1)).forEach(r => {
+    const c = CROP[r.crop] || CROP.other, d = document.createElement('div'); d.className = 'rec';
+    d.innerHTML = '<span class="dot" style="background:' + c.col + '"></span><div class="t"><b>' + esc(r.id) + '</b> · ' + esc(c.mr) +
+      '<small>गट ' + esc(r.gut_no || '—') + (r.map_parcel ? ' · map ' + esc(r.map_parcel) : '') + ' · ' + new Date(r.created).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) +
+      ' · ' + (r.photos || []).length + ' 📷</small></div>';
+    d.onclick = () => { $('list').classList.remove('open'); map.setView([r.lat, r.lng], 18); openForm(r); };
+    box.appendChild(d);
+  });
+}
+function allKeys() {
+  const base = ['id', 'created', 'updated', 'surveyor', 'lat', 'lng', 'acc', 'n_fixes', 'loc_method', 'map_village', 'map_parcel'];
+  const seen = new Set(base);
+  for (const sec of SECTIONS) for (const f of sec.fields) {
+    if (f[1] === 'history') { for (const [hk] of HIST) for (const s of ['crop', 'sown', 'harv']) seen.add('h_' + hk + '_' + s); continue; }
+    if (f[0].startsWith('_')) continue;
+    seen.add(f[0]); if (f[1] === 'area') seen.add(f[0] + '_unit');
+  }
+  ['flow_lps', 'vol_m3_per_irr', 'depth_mm_per_irr', 'season_mm_so_far', 'yield_kg', 'yield_t_ha', 'photos'].forEach(k => seen.add(k));
+  return [...seen];
+}
+function toCSV() {
+  const keys = allKeys(), q = v => { v = v == null ? '' : Array.isArray(v) ? v.join(';') : String(v); return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  return '\ufeff' + keys.join(',') + '\n' + RECS.map(r => keys.map(k => q(r[k])).join(',')).join('\n') + '\n';
+}
+function toGeoJSON() {
+  const keys = allKeys();
+  return JSON.stringify({ type: 'FeatureCollection', features: RECS.map(r => ({ type: 'Feature',
+    geometry: { type: 'Point', coordinates: [+r.lng.toFixed(7), +r.lat.toFixed(7)] },
+    properties: Object.fromEntries(keys.map(k => [k, r[k] == null ? null : r[k]])) })) }, null, 1);
+}
+const stamp = () => { const d = new Date(); return ymd(d) + '_' + pad(d.getHours()) + pad(d.getMinutes()); };
+function download(blob, name) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+}
+async function buildZip() {
+  const z = new JSZip(); z.file('records.csv', toCSV()); z.file('records.geojson', toGeoJSON());
+  const ph = z.folder('photos');
+  for (const r of RECS) for (let i = 0; i < (r.photos || []).length; i++) {
+    const p = await DB.get('photos', r.photos[i]); if (p) ph.file(r.id + '_' + (i + 1) + '.jpg', p.blob);
+  }
+  return z.generateAsync({ type: 'blob' });
+}
+function markExported() { LS.set('lastExport', new Date().toISOString()); renderList(); }
+async function exportZip(share) {
+  if (!RECS.length) { toast('अजून नोंद नाही — no records yet'); return; }
+  toast('ZIP तयार होत आहे… preparing', 8000);
+  const blob = await buildZip(), name = 'shet_nond_' + stamp() + '.zip';
+  if (share) {
+    const file = new File([blob], name, { type: 'application/zip' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: name }); markExported(); toast('शेअर झाले · Shared'); return; }
+      catch (e) { if (e.name === 'AbortError') return; }
+    }
+    toast('शेअर होत नाही — downloading instead');
+  }
+  download(blob, name); markExported();
+}
+
+// ------------------------------------------------------------------ init
+async function init() {
+  map = L.map('map', { zoomControl: false, attributionControl: false, preferCanvas: true, maxZoom: 20 }).setView(CFG.center, 14);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 20, maxNativeZoom: 18 }).addTo(map);
+  recLayer = L.layerGroup();
+  try {
+    const fcs = await loadParcels();
+    for (const fc of fcs) L.geoJSON(fc, { style: { color: '#ffffff', weight: 1, opacity: 0.8, fill: false }, interactive: false }).addTo(map);
+    const all = L.featureGroup(fcs.map(fc => L.geoJSON(fc))); map.fitBounds(all.getBounds(), { padding: [10, 10] });
+  } catch (e) { toast('शेतांच्या सीमा लोड झाल्या नाहीत — field boundaries did not load; points still save. ' + e.message, 8000); }
+  recLayer.addTo(map);
+  await DB.open();
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+  RECS = await DB.all('records'); drawRecords();
+
+  $('surveyor').value = LS.get('surveyor', '');
+  $('surveyor').addEventListener('input', e => LS.set('surveyor', e.target.value));
+  map.on('click', e => {
+    if (draft) draft.setLatLng(e.latlng);
+    else draft = L.marker(e.latlng, { draggable: true, autoPan: true }).addTo(map);
+    $('recTap').classList.remove('hidden'); $('tapHint').classList.add('hidden');
+  });
+  $('recTap').onclick = () => { const ll = draft.getLatLng(); openForm(null, { lat: ll.lat, lng: ll.lng, acc: null, n: 0, method: 'map_tap' }); };
+  $('recGPS').onclick = async () => {
+    startWatch();
+    try { const loc = await averageFix(CFG.avgSeconds); openForm(null, loc); }
+    catch (e) { if (e.message !== 'cancelled') toast('GPS मिळाले नाही — ' + e.message + '. You can tap the map instead.', 5000); }
+  };
+  $('gpsChip').onclick = () => { startWatch(); if (lastFix) map.setView([lastFix.lat, lastFix.lng], 18); };
+  $('listBtn').onclick = () => { renderList(); $('list').classList.add('open'); };
+  $('lClose').onclick = () => $('list').classList.remove('open');
+  $('fClose').onclick = () => closeForm(false);
+  $('fSave').onclick = saveCurrent;
+  $('xZip').onclick = () => exportZip(false);
+  $('xShare').onclick = () => exportZip(true);
+  $('xCsv').onclick = () => { if (!RECS.length) return toast('अजून नोंद नाही — no records yet'); download(new Blob([toCSV()], { type: 'text/csv' }), 'shet_nond_' + stamp() + '.csv'); };
+  $('xGeo').onclick = () => { if (!RECS.length) return toast('अजून नोंद नाही — no records yet'); download(new Blob([toGeoJSON()], { type: 'application/geo+json' }), 'shet_nond_' + stamp() + '.geojson'); };
+  window.addEventListener('beforeunload', e => { if (cur && dirty) { e.preventDefault(); e.returnValue = ''; } });
+  startWatch();
+  $('loading').classList.add('hidden');
+}
+window.addEventListener('load', () => init().catch(err => {
+  $('loading').innerHTML = 'ॲप सुरू झाले नाही — the app could not start<small>' + esc(err.message) + '</small>';
+}));
+})();
+</script>
+</body>
+</html>
