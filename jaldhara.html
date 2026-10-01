@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>JalDHARA — data-driven water management for farms</title>
 <meta name="description" content="JalDHARA — Data-driven Hydrology for Agricultural Resource Alternatives. Open-source FAO-56 reference ET and crop water need calculator. RuDRA Lab, C-TARA, IIT Bombay.">
-<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+Devanagari:wght@400;500;600&family=Noto+Sans+Bengali:wght@400;500;600&family=Noto+Sans+Tamil:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Noto+Sans+Devanagari:wght@400;500;600&family=Noto+Sans+Bengali:wght@400;500;600&family=Noto+Sans+Tamil:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ---- inlined Leaflet 1.9 (BSD-2-Clause) ---- */
 /* required styles */
@@ -668,16 +668,16 @@ svg.leaflet-image-layer.leaflet-interactive path {
 	}
 
 /* ---- JalDHARA ---- */
-@property --sc1{syntax:"<color>";inherits:true;initial-value:#fbbf24}
-@property --sc2{syntax:"<color>";inherits:true;initial-value:#14b8a6}
-@property --sc3{syntax:"<color>";inherits:true;initial-value:#22d3ee}
-:root{--bg:#eef3fa;--bg2:#e2eaf5;--card:#ffffff;--ink:#0f1626;--mute:#5b6b85;--line:#d7e0ee;--green:#0e7490;--leaf:#0891b2;--sun:#d97706;--warn:#b45309;--blue:#0369a1;--red:#be3d34;--purple:#6d5bd0;--glass:rgba(255,255,255,.62);--sc1:#fbbf24;--sc2:#14b8a6;--sc3:#22d3ee;
+@property --sc1{syntax:"<color>";inherits:true;initial-value:#f59e0b}
+@property --sc2{syntax:"<color>";inherits:true;initial-value:#16a34a}
+@property --sc3{syntax:"<color>";inherits:true;initial-value:#0ea5e9}
+:root{--bg:#eef2ea;--bg2:#e3ebdf;--card:#ffffff;--ink:#17261c;--mute:#5d6b60;--line:#d3ddd0;--green:#23573a;--leaf:#4f8f5c;--sun:#e2a82b;--warn:#b5651d;--blue:#2f6f9e;--red:#c0503f;--glass:rgba(255,255,255,.62);--sc1:#f59e0b;--sc2:#16a34a;--sc3:#0ea5e9;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#080d1a;--bg2:#0b1222;--card:#0f1626;--ink:#e8f0fe;--mute:#94a3b8;--line:#253047;--green:#22d3ee;--leaf:#34d399;--sun:#fbbf24;--warn:#fbbf24;--blue:#38bdf8;--red:#f87171;--purple:#a78bfa;--glass:rgba(15,22,38,.58)}}
-:root[data-theme="dark"]{--bg:#080d1a;--bg2:#0b1222;--card:#0f1626;--ink:#e8f0fe;--mute:#94a3b8;--line:#253047;--green:#22d3ee;--leaf:#34d399;--sun:#fbbf24;--warn:#fbbf24;--blue:#38bdf8;--red:#f87171;--purple:#a78bfa;--glass:rgba(15,22,38,.58)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1410;--bg2:#101a13;--card:#16211a;--ink:#e4ece5;--mute:#98a89c;--line:#2a3830;--green:#7cc394;--leaf:#5fae74;--sun:#f0bd4b;--warn:#e39a5a;--blue:#74b2dd;--red:#e0796a;--glass:rgba(20,30,24,.58)}}
+:root[data-theme="dark"]{--bg:#0d1410;--bg2:#101a13;--card:#16211a;--ink:#e4ece5;--mute:#98a89c;--line:#2a3830;--green:#7cc394;--leaf:#5fae74;--sun:#f0bd4b;--warn:#e39a5a;--blue:#74b2dd;--red:#e0796a;--glass:rgba(20,30,24,.58)}
 :root[data-theme="light"]{--bg:#eef2ea;--bg2:#e3ebdf;--card:#fff;--ink:#17261c;--mute:#5d6b60;--line:#d3ddd0;--green:#23573a;--leaf:#4f8f5c;--sun:#e2a82b;--warn:#b5651d;--blue:#2f6f9e;--red:#c0503f;--glass:rgba(255,255,255,.62)}
 *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:70px}
-body{margin:0;background:var(--bg);color:var(--ink);line-height:1.55;font-family:"Comfortaa","Noto Sans Devanagari","Noto Sans Bengali","Noto Sans Tamil",system-ui,sans-serif;overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);line-height:1.55;font-family:"IBM Plex Sans","Noto Sans Devanagari","Noto Sans Bengali","Noto Sans Tamil",system-ui,sans-serif;overflow-x:hidden}
 #bg{position:fixed;inset:0;z-index:-3;transition:--sc1 1.4s ease,--sc2 1.4s ease,--sc3 1.4s ease;
  background:
   radial-gradient(1000px 720px at 6% -8%,color-mix(in srgb,var(--sc1) 62%,transparent),transparent 66%),
@@ -707,7 +707,7 @@ header.top{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px) saturate(
 .credit a{color:var(--blue);text-decoration:underline;text-underline-offset:2px}
 .chlog{margin:0;padding-left:1.15em;font-size:.82rem;line-height:1.6}
 .chlog li{margin-bottom:5px}.chlog b{font-family:"IBM Plex Mono",monospace;color:var(--green)}
-.brand{font-family:"Comfortaa",system-ui,sans-serif;font-weight:700;color:var(--green);font-size:1.12rem;letter-spacing:-.01em;white-space:nowrap}
+.brand{font-family:Fraunces,serif;font-weight:500;color:var(--green);font-size:1.12rem;letter-spacing:-.01em;white-space:nowrap}
 .brand span{font-family:"IBM Plex Sans";font-weight:400;font-size:.72rem;color:var(--mute);margin-left:6px}
 .navs{display:flex;gap:2px;margin-left:auto;overflow-x:auto;scrollbar-width:none}.navs::-webkit-scrollbar{display:none}
 .navs a{font-size:.8rem;color:var(--mute);text-decoration:none;padding:6px 9px;border-radius:99px;white-space:nowrap}
@@ -720,12 +720,12 @@ section{padding:34px 0 8px;scroll-margin-top:66px}
 .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.7,.3,1),transform .7s cubic-bezier(.2,.7,.3,1)}
 .reveal.in{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}}
-h1{font-family:"Comfortaa",system-ui,sans-serif;font-weight:700;font-size:clamp(2.1rem,6vw,3.4rem);line-height:1.04;margin:.2em 0 .1em;letter-spacing:-.02em}
+h1{font-family:Fraunces,serif;font-size:clamp(2.1rem,6vw,3.4rem);line-height:1.04;margin:.2em 0 .1em;letter-spacing:-.02em}
 h1 em{font-style:normal;color:var(--green)}
-h2{font-family:"Comfortaa",system-ui,sans-serif;font-weight:700;font-size:1.5rem;color:var(--green);margin:0 0 2px;letter-spacing:-.01em}
+h2{font-family:Fraunces,serif;font-size:1.5rem;color:var(--green);margin:0 0 2px;letter-spacing:-.01em}
 .kicker{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);font-weight:600}
 .lede{font-size:1.02rem;color:var(--mute);max-width:64ch}
-.card{background:var(--glass);backdrop-filter:blur(16px) saturate(135%);-webkit-backdrop-filter:blur(16px) saturate(135%);box-shadow:0 10px 30px -18px rgba(0,0,0,.45);border:1px solid color-mix(in srgb,var(--line) 75%,transparent);border-radius:12px;padding:16px;margin:12px 0}
+.card{background:var(--glass);backdrop-filter:blur(16px) saturate(135%);-webkit-backdrop-filter:blur(16px) saturate(135%);box-shadow:0 10px 30px -18px rgba(0,0,0,.45);border:1px solid color-mix(in srgb,var(--line) 75%,transparent);border-radius:16px;padding:16px;margin:12px 0}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
@@ -743,7 +743,7 @@ button.act:active{transform:translateY(1px)}
 .chip{font-size:.76rem;padding:3px 10px;border-radius:99px;background:color-mix(in srgb,var(--card) 45%,transparent);border:1px solid var(--line);color:var(--mute)}
 .meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
 .note{font-size:.83rem;color:var(--mute);margin:9px 0 0}
-.mcard{border:1px solid color-mix(in srgb,var(--line) 80%,transparent);border-radius:10px;padding:14px;background:color-mix(in srgb,var(--card) 55%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);position:relative;overflow:hidden}
+.mcard{border:1px solid color-mix(in srgb,var(--line) 80%,transparent);border-radius:14px;padding:14px;background:color-mix(in srgb,var(--card) 55%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);position:relative;overflow:hidden}
 .mcard.best{border-color:var(--green);box-shadow:0 0 0 1px var(--green) inset}
 .mcard .top{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:600}
 .mcard h3{margin:2px 0 6px;font-size:1.05rem}
@@ -769,7 +769,7 @@ details{margin-top:10px}summary{cursor:pointer;font-size:.86rem;color:var(--gree
 .scrollcue{display:inline-flex;align-items:center;gap:8px;color:var(--mute);font-size:.84rem;margin-top:18px}
 .scrollcue i{width:22px;height:22px;border-radius:50%;border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;animation:bob 1.8s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
-.mr{display:block;font-family:"Noto Sans Devanagari","Noto Sans Bengali","Noto Sans Tamil","Comfortaa",sans-serif;font-size:.92rem;font-weight:500;color:var(--warn);letter-spacing:0;margin-top:1px}
+.mr{display:block;font-family:"Noto Sans Devanagari","Noto Sans Bengali","Noto Sans Tamil","IBM Plex Sans",sans-serif;font-size:.92rem;font-weight:500;color:var(--warn);letter-spacing:0;margin-top:1px}
 h1 .mr{font-size:1.05rem;margin-top:8px;color:var(--mute)}
 .explain{border:1px dashed var(--line);border-radius:14px;padding:12px 14px;margin:12px 0;background:color-mix(in srgb,var(--sun) 7%,transparent)}
 .explain b{color:var(--green)}
@@ -812,7 +812,7 @@ ol.refs a{color:var(--blue);text-decoration:underline;text-underline-offset:2px;
 ol.refs .src{color:var(--mute)}
 footer{font-size:.82rem;color:var(--ink);opacity:.92;margin-top:4px}
 .leaflet-container{background:var(--bg2);font:inherit}
-#map{height:clamp(240px,42vh,430px);opacity:1;border-radius:10px}
+#map{height:clamp(240px,42vh,430px);opacity:1}
 .split{display:grid;grid-template-columns:1fr;gap:14px}
 /* ---------- large screens ---------- */
 @media(min-width:1000px){
@@ -867,28 +867,28 @@ footer{font-size:.82rem;color:var(--ink);opacity:.92;margin-top:4px}
   <circle class="blob3" cx="620" cy="720" r="260" fill="var(--sc2)" fill-opacity=".5"/>
  </g></svg>
 <svg class="bglayer" id="bgsky" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
- <defs><radialGradient id="glow"><stop offset="0" stop-color="#fde68a" stop-opacity=".95"/><stop offset="55%" stop-color="#fbbf24" stop-opacity=".55"/><stop offset="100%" stop-color="#fbbf24" stop-opacity="0"/></radialGradient></defs>
+ <defs><radialGradient id="glow"><stop offset="0" stop-color="#fde68a" stop-opacity=".95"/><stop offset="55%" stop-color="#fbbf24" stop-opacity=".55"/><stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/></radialGradient></defs>
  <g id="sunorb">
   <circle cx="1010" cy="120" r="150" fill="url(#glow)"/>
   <circle cx="1010" cy="120" r="54" fill="#fbbf24" fill-opacity=".92"/>
-  <g stroke="#fbbf24" stroke-width="4" stroke-linecap="round" stroke-opacity=".7">
+  <g stroke="#f59e0b" stroke-width="4" stroke-linecap="round" stroke-opacity=".7">
    <line x1="1010" y1="38" x2="1010" y2="14"/><line x1="1010" y1="202" x2="1010" y2="226"/>
    <line x1="928" y1="120" x2="904" y2="120"/><line x1="1092" y1="120" x2="1116" y2="120"/>
    <line x1="952" y1="62" x2="935" y2="45"/><line x1="1068" y1="178" x2="1085" y2="195"/>
    <line x1="952" y1="178" x2="935" y2="195"/><line x1="1068" y1="62" x2="1085" y2="45"/></g></g>
- <path id="sunarc" d="M90 440 Q600 40 1110 440" fill="none" stroke="#fbbf24" stroke-opacity=".55" stroke-width="2.5" stroke-dasharray="7 11"/>
- <g id="rangoli" fill="#fbbf24" fill-opacity=".55"></g>
+ <path id="sunarc" d="M90 440 Q600 40 1110 440" fill="none" stroke="#f59e0b" stroke-opacity=".55" stroke-width="2.5" stroke-dasharray="7 11"/>
+ <g id="rangoli" fill="#f59e0b" fill-opacity=".55"></g>
  <g class="scene" data-scene="weather" opacity="0">
-  <g fill="#cbd5e1" fill-opacity=".62">
+  <g fill="#e2e8f0" fill-opacity=".72">
    <g class="cloud" style="animation-duration:88s"><ellipse cx="140" cy="150" rx="96" ry="34"/><ellipse cx="90" cy="158" rx="54" ry="25"/><ellipse cx="204" cy="160" rx="60" ry="27"/></g>
    <g class="cloud" style="animation-duration:132s;animation-delay:-40s"><ellipse cx="420" cy="265" rx="120" ry="38"/><ellipse cx="356" cy="274" rx="64" ry="28"/><ellipse cx="492" cy="272" rx="68" ry="29"/></g>
    <g class="cloud" style="animation-duration:104s;animation-delay:-70s"><ellipse cx="800" cy="340" rx="78" ry="27"/><ellipse cx="854" cy="346" rx="50" ry="22"/></g></g>
-  <g stroke="#22d3ee" stroke-opacity=".8" stroke-width="3" stroke-linecap="round">
+  <g stroke="#38bdf8" stroke-opacity=".8" stroke-width="3" stroke-linecap="round">
    <line x1="392" y1="312" x2="384" y2="344"/><line x1="430" y1="318" x2="422" y2="352"/><line x1="468" y1="310" x2="460" y2="342"/>
    <line x1="410" y1="360" x2="402" y2="390"/><line x1="450" y1="366" x2="442" y2="396"/></g>
  </g>
  <g class="scene" data-scene="method" opacity="0">
-  <g stroke="#818cf8" stroke-opacity=".38" stroke-width="1.6">
+  <g stroke="#8b5cf6" stroke-opacity=".38" stroke-width="1.6">
    <path d="M120 110 H1080 M120 210 H1080 M120 310 H1080 M120 410 H1080"/>
    <path d="M240 80 V450 M440 80 V450 M640 80 V450 M840 80 V450 M1040 80 V450"/></g>
  </g>
@@ -896,18 +896,18 @@ footer{font-size:.82rem;color:var(--ink);opacity:.92;margin-top:4px}
 <svg class="bglayer" id="bgground" viewBox="0 0 1200 420" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
  <path d="M0 150 Q220 96 470 146 T900 132 T1200 156 L1200 420 L0 420 Z" fill="var(--sc2)" fill-opacity=".30"/>
  <path d="M0 212 Q260 160 520 208 T980 196 T1200 218 L1200 420 L0 420 Z" fill="var(--sc2)" fill-opacity=".42"/>
- <path d="M0 278 Q300 232 600 274 T1200 268 L1200 420 L0 420 Z" fill="#0f766e" fill-opacity=".34"/>
- <g id="warli" stroke="#0f766e" stroke-opacity=".75" fill="none" stroke-width="3" stroke-linecap="round"></g>
- <g id="drops" stroke="#22d3ee" stroke-opacity=".6" stroke-width="2.6" stroke-linecap="round"></g>
+ <path d="M0 278 Q300 232 600 274 T1200 268 L1200 420 L0 420 Z" fill="#14532d" fill-opacity=".30"/>
+ <g id="warli" stroke="#14532d" stroke-opacity=".75" fill="none" stroke-width="3" stroke-linecap="round"></g>
+ <g id="drops" stroke="#38bdf8" stroke-opacity=".6" stroke-width="2.6" stroke-linecap="round"></g>
  <g class="scene" data-scene="where" opacity="0">
-  <g stroke="#0f766e" stroke-opacity=".55" fill="none" stroke-width="2.4">
+  <g stroke="#065f46" stroke-opacity=".55" fill="none" stroke-width="2.4">
    <path d="M60 110 Q260 70 470 108 T880 92 T1180 118"/><path d="M60 150 Q280 112 500 148 T900 134 T1180 158"/>
    <path d="M60 190 Q300 156 520 188 T920 174 T1180 196"/></g>
-  <g fill="none" stroke="#fbbf24" stroke-opacity=".95" stroke-width="3.5">
-   <circle class="pin" cx="600" cy="150" r="10"/><circle cx="600" cy="150" r="7" fill="#fbbf24" stroke="none"/></g>
+  <g fill="none" stroke="#f59e0b" stroke-opacity=".95" stroke-width="3.5">
+   <circle class="pin" cx="600" cy="150" r="10"/><circle cx="600" cy="150" r="7" fill="#f59e0b" stroke="none"/></g>
  </g>
  <g class="scene" data-scene="eto" opacity="0">
-  <g stroke="#fb923c" stroke-opacity=".7" fill="none" stroke-width="3" stroke-linecap="round">
+  <g stroke="#f97316" stroke-opacity=".7" fill="none" stroke-width="3" stroke-linecap="round">
    <path d="M250 300 q16 -28 0 -56 q-16 -28 0 -56" class="vapour" style="animation-duration:11s"/>
    <path d="M520 320 q16 -28 0 -56 q-16 -28 0 -56" class="vapour" style="animation-duration:13s;animation-delay:-4s"/>
    <path d="M790 305 q16 -28 0 -56 q-16 -28 0 -56" class="vapour" style="animation-duration:12s;animation-delay:-8s"/>
@@ -916,18 +916,18 @@ footer{font-size:.82rem;color:var(--ink);opacity:.92;margin-top:4px}
    <path d="M120 352 q40 -14 80 0 t80 0 t80 0 t80 0 t80 0 t80 0"/><path d="M320 378 q40 -14 80 0 t80 0 t80 0 t80 0 t80 0"/></g>
  </g>
  <g class="scene" data-scene="crop" opacity="0">
-  <g stroke="#10b981" stroke-opacity=".85" fill="none" stroke-width="3.2" stroke-linecap="round">
+  <g stroke="#15803d" stroke-opacity=".85" fill="none" stroke-width="3.2" stroke-linecap="round">
    <g class="sprout" style="animation-duration:8s"><path d="M200 340 L200 286"/><path d="M200 304 q-30 -18 -38 -44 q32 2 38 44"/><path d="M200 296 q30 -20 38 -46 q-32 2 -38 46"/></g>
    <g class="sprout" style="animation-duration:10s;animation-delay:-3s"><path d="M470 346 L470 280"/><path d="M470 300 q-32 -20 -40 -48 q34 2 40 48"/><path d="M470 292 q32 -22 40 -50 q-34 2 -40 50"/></g>
    <g class="sprout" style="animation-duration:9s;animation-delay:-5s"><path d="M760 340 L760 284"/><path d="M760 302 q-30 -18 -38 -44 q32 2 38 44"/><path d="M760 294 q30 -20 38 -46 q-32 2 -38 46"/></g>
    <g class="sprout" style="animation-duration:11s;animation-delay:-7s"><path d="M1020 348 L1020 288"/><path d="M1020 306 q-30 -18 -38 -44 q32 2 38 44"/><path d="M1020 298 q30 -20 38 -46 q-32 2 -38 46"/></g></g>
-  <g stroke="#22d3ee" stroke-opacity=".7" stroke-width="3" stroke-dasharray="2 18" stroke-linecap="round"><path d="M110 370 H1095"/></g>
+  <g stroke="#0ea5e9" stroke-opacity=".7" stroke-width="3" stroke-dasharray="2 18" stroke-linecap="round"><path d="M110 370 H1095"/></g>
  </g>
  <g class="scene" data-scene="plan" opacity="0">
-  <g class="wave" stroke="#0ea5e9" stroke-opacity=".7" fill="none" stroke-width="3">
+  <g class="wave" stroke="#0284c7" stroke-opacity=".7" fill="none" stroke-width="3">
    <path d="M-40 316 q60 -18 120 0 t120 0 t120 0 t120 0 t120 0 t120 0 t120 0 t120 0 t120 0"/>
    <path d="M-40 350 q60 -18 120 0 t120 0 t120 0 t120 0 t120 0 t120 0 t120 0 t120 0 t120 0" stroke-opacity=".4"/></g>
-  <g stroke="#0f766e" stroke-opacity=".8" stroke-width="3">
+  <g stroke="#14532d" stroke-opacity=".8" stroke-width="3">
    <line x1="980" y1="224" x2="980" y2="366"/>
    <line x1="964" y1="248" x2="996" y2="248"/><line x1="970" y1="282" x2="990" y2="282"/>
    <line x1="964" y1="316" x2="996" y2="316"/><line x1="970" y1="348" x2="990" y2="348"/></g>
@@ -1364,7 +1364,7 @@ function nextBasemap(){const o=ORDER();tileIdx++;
 function initMap(){try{
  map=L.map("map",{scrollWheelZoom:false,attributionControl:true}).setView([num("lat")||19.386,num("lon")||74.649],9);
  setBasemap(ORDER()[0],true);
- marker=L.circleMarker([num("lat")||19.386,num("lon")||74.649],{radius:9,color:"#0f766e",weight:3,fillColor:"#fbbf24",fillOpacity:.95}).addTo(map);
+ marker=L.circleMarker([num("lat")||19.386,num("lon")||74.649],{radius:9,color:"#23573a",weight:3,fillColor:"#e2a82b",fillOpacity:.9}).addTo(map);
  map.on("click",e=>{setLatLon(e.latlng.lat,e.latlng.lng);});
  map.on("zoomend",()=>{});
 }catch(err){$("tilewarn").classList.remove("hide")}}
@@ -1457,8 +1457,7 @@ addEventListener("resize",()=>{clearTimeout(rzT);rzT=setTimeout(()=>{renderETo()
 addEventListener("orientationchange",()=>setTimeout(()=>{renderETo();if(map)map.invalidateSize()},350));
 
 
-const VERSION={n:"1.4.2",date:"2026-09-28",log:[
- ["1.4.2","2026-09-28","Typography and palette aligned with CropView v3 — Comfortaa throughout, the same navy-and-cyan dark theme (#080d1a, #22d3ee, #fbbf24) and a matching light theme, so the two apps read as one family."],
+const VERSION={n:"1.4.1.2",date:"2026-09-28",log:[
  ["1.4.1.2","2026-09-28","Charts read out on touch: tap or drag for a guide line and the values of every series at that point. Geolocation rewritten — secure-context detection, 15 s timeout, separate messages for refusal, no fix and timeout. Reference list and the about text collapsed by default."],
  ["1.4.1.1","2026-09-28","Open-Meteo's own FAO-56 ET₀ added as a fourth column and as a selectable ETo source, with manual entry kept as the default and every fetched field left editable."],
  ["1.4.1","2026-09-27","CropView v3 linked in the footer and in the references; version number beside the title, release line and version history on the last page."],
@@ -1560,9 +1559,9 @@ function applyLang(){document.documentElement.lang=LG;
  try{localStorage.setItem("jaldhara-lang",LG)}catch(_){}}
 const langSel=$("lang");LANGS.forEach(l=>langSel.add(new Option(LANGNAMES[l],l)));
 langSel.onchange=()=>{LG=langSel.value;applyLang()};
-const PALETTE={hero:["#fbbf24","#14b8a6","#22d3ee"],where:["#fbbf24","#0f766e","#22d3ee"],
- weather:["#38bdf8","#22d3ee","#818cf8"],eto:["#fbbf24","#fb923c","#f87171"],
- crop:["#34d399","#14b8a6","#fbbf24"],plan:["#22d3ee","#0ea5e9","#14b8a6"],method:["#818cf8","#6366f1","#22d3ee"],refs:["#64748b","#14b8a6","#fbbf24"]};
+const PALETTE={hero:["#f59e0b","#16a34a","#0ea5e9"],where:["#f59e0b","#15803d","#0ea5e9"],
+ weather:["#60a5fa","#0ea5e9","#a78bfa"],eto:["#fb923c","#f59e0b","#ef4444"],
+ crop:["#84cc16","#16a34a","#f59e0b"],plan:["#06b6d4","#0284c7","#14b8a6"],method:["#a78bfa","#6366f1","#0ea5e9"],refs:["#6366f1","#0f766e","#f59e0b"]};
 function setPalette(k){const p=PALETTE[k]||PALETTE.hero,r=document.documentElement.style;
  r.setProperty("--sc1",p[0]);r.setProperty("--sc2",p[1]);r.setProperty("--sc3",p[2]);
  const c=document.querySelectorAll("#bgblobs circle");if(c[0]){c[0].setAttribute("fill",p[0]);c[1].setAttribute("fill",p[2]);c[2].setAttribute("fill",p[1])}}
