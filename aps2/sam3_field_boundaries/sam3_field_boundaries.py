@@ -116,7 +116,104 @@ def open_acc(path, H, W, reset):
     return np.memmap(path, dtype=np.float32, mode=mode, shape=(H, W))
 
 
-def load_model(device, confidence_floor):
+class OpenProcessor:
+    """Open-weights backend with the same interface as Sam3Processor. No gated checkpoints.
+
+    Fields : SAM (facebook/sam-vit-large) automatic point grid, each mask weighted by SAM's predicted IoU.
+    Others : GroundingDINO (IDEA-Research/grounding-dino-base) text prompt -> boxes, then SAM box prompts.
+             Mask weight = detector score * SAM predicted IoU.
+    Masks are merged into one soft map (running max), so memory stays at one H x W array per prompt.
+    """
+    FIELD_PROMPT = "agricultural field"
+
+    def __init__(self, device="cuda", sam_id="facebook/sam-vit-large",
+                 dino_id="IDEA-Research/grounding-dino-base", grid=24,
+                 box_thr=0.25, text_thr=0.25, grid_iou_min=0.85):
+        import torch
+        from transformers import (SamModel, SamProcessor, AutoProcessor,
+                                  AutoModelForZeroShotObjectDetection)
+        self.torch = torch
+        self.device = device if (device == "cpu" or torch.cuda.is_available()) else "cpu"
+        self.sam = SamModel.from_pretrained(sam_id).to(self.device).eval()
+        self.sam_proc = SamProcessor.from_pretrained(sam_id)
+        self.dino_proc = AutoProcessor.from_pretrained(dino_id)
+        self.dino = AutoModelForZeroShotObjectDetection.from_pretrained(dino_id).to(self.device).eval()
+        self.grid, self.box_thr, self.text_thr, self.grid_iou_min = grid, box_thr, text_thr, grid_iou_min
+
+    def set_image(self, image):
+        img = image.convert("RGB")
+        inputs = self.sam_proc(images=img, return_tensors="pt")
+        with self.torch.no_grad():
+            emb = self.sam.get_image_embeddings(inputs["pixel_values"].to(self.device))
+        return {"image": img, "sam_emb": emb, "size": (img.height, img.width),
+                "original_sizes": inputs["original_sizes"],
+                "reshaped_sizes": inputs["reshaped_input_sizes"],
+                "reshaped": inputs["reshaped_input_sizes"][0].tolist()}
+
+    def _to_sam_frame(self, state, xy):
+        """Image pixel coords -> SAM's resized input frame (longest side 1024)."""
+        H, W = state["size"]
+        rh, rw = state["reshaped"]
+        return xy * np.array([rw / W, rh / H] * (xy.shape[-1] // 2), dtype=np.float32)
+
+    def _sam_masks(self, state, points=None, boxes=None):
+        t = self.torch
+        kw = {}
+        if points is not None:
+            pts = self._to_sam_frame(state, points.astype(np.float32))
+            kw["input_points"] = t.tensor(pts, device=self.device)[None, :, None, :]
+            kw["input_labels"] = t.ones((1, len(pts), 1), dtype=t.long, device=self.device)
+        else:
+            kw["input_boxes"] = t.tensor(self._to_sam_frame(state, boxes.astype(np.float32)), device=self.device)[None]
+        with t.no_grad():
+            out = self.sam(image_embeddings=state["sam_emb"], multimask_output=False, **kw)
+        masks = self.sam_proc.image_processor.post_process_masks(
+            out.pred_masks.cpu(), state["original_sizes"], state["reshaped_sizes"])[0]  # (n, 1, H, W) bool
+        return masks[:, 0].numpy().astype(np.float32), out.iou_scores[0, :, 0].cpu().numpy()
+
+    def set_text_prompt(self, prompt, state):
+        H, W = state["size"]
+        if prompt.strip().lower() == self.FIELD_PROMPT:
+            combined = self._field_grid(state, H, W)
+        else:
+            combined = self._dino_sam(state, prompt, H, W)
+        # one merged soft map; soft_from_output takes max(score*mask) so a single unit-score mask is exact
+        return {"masks": combined[None, None], "scores": np.ones(1, np.float32)}
+
+    def _field_grid(self, state, H, W):
+        ys = (np.arange(self.grid) + 0.5) * H / self.grid
+        xs = (np.arange(self.grid) + 0.5) * W / self.grid
+        pts = np.stack(np.meshgrid(xs, ys), -1).reshape(-1, 2)
+        combined = np.zeros((H, W), np.float32)
+        for i in range(0, len(pts), 64):
+            masks, ious = self._sam_masks(state, points=pts[i:i + 64])
+            for m, s in zip(masks, ious):
+                if s >= self.grid_iou_min:
+                    np.maximum(combined, m * float(s), out=combined)
+        return combined
+
+    def _dino_sam(self, state, prompt, H, W):
+        t = self.torch
+        text = prompt.strip().lower().rstrip(".") + "."
+        inputs = self.dino_proc(images=state["image"], text=text, return_tensors="pt").to(self.device)
+        with t.no_grad():
+            out = self.dino(**inputs)
+        res = self.dino_proc.post_process_grounded_object_detection(
+            out, inputs.input_ids, threshold=self.box_thr, text_threshold=self.text_thr,
+            target_sizes=[(H, W)])[0]
+        boxes = res["boxes"].cpu().numpy()
+        dscores = res["scores"].cpu().numpy()
+        combined = np.zeros((H, W), np.float32)
+        if len(boxes):
+            masks, ious = self._sam_masks(state, boxes=boxes)
+            for m, s, d in zip(masks, ious, dscores):
+                np.maximum(combined, m * float(s) * float(d), out=combined)
+        return combined
+
+
+def load_model(backend, device, confidence_floor):
+    if backend == "open":
+        return OpenProcessor(device=device)
     from sam3.model_builder import build_sam3_image_model
     from sam3.model.sam3_image_processor import Sam3Processor
 
@@ -145,7 +242,7 @@ def infer(a, proc=None):
         wsum = open_acc(os.path.join(a.out, "acc_wsum.dat"), H, W, reset=not done)
 
         if proc is None:
-            proc = load_model(a.device, a.confidence_floor)
+            proc = load_model(a.backend, a.device, a.confidence_floor)
 
         ys, xs = tile_starts(H, a.win, a.stride), tile_starts(W, a.win, a.stride)
         tiles = [(y, x) for y in ys for x in xs]
@@ -373,6 +470,8 @@ def main(argv=None):
     p.add_argument("--out", required=True)
     p.add_argument("--win", type=int, default=1000, help="window px (SAM 3 resizes to 1008, ~native at 0.5 m)")
     p.add_argument("--overlap", type=int, default=200, help="px shared by neighbouring windows")
+    p.add_argument("--backend", choices=["open", "sam3"], default="open",
+                   help="open = SAM + GroundingDINO (no gated weights); sam3 = facebook/sam3 (gated)")
     p.add_argument("--device", default="cuda")
     p.add_argument("--confidence-floor", type=float, default=0.0)
     p.add_argument("--p-field", default=DEFAULT_PROMPTS["field"])
