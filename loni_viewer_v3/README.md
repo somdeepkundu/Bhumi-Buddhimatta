@@ -11,8 +11,8 @@ Somdeep Kundu, RuDRA Lab, C-TARA, IIT Bombay
 | `prepare_units_v1.py` | the same unit builder as v2 (plots clipped to guts, plus each gut's remainder) |
 | `resolve_overlaps_v3.py` | makes the plot layer non-overlapping |
 | `notes_v3.md` | lines for the viewer's "Where the data is imprecise" panel |
-| `SERVER_STEPS.md` | NDVI, crop cycles and build on the RuDRA server, the same way as v2.1 |
-| `loni_field_viewer_v3.html` | the viewer, once built on the server |
+| `SERVER_STEPS.md` | NDVI, crop cycles and build on the RuDRA server with its current scripts |
+| `loni_field_viewer_drone_v3.html` | the viewer, once built on the server |
 
 Rebuild the units:
 
