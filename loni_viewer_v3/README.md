@@ -17,6 +17,7 @@ Somdeep Kundu, RuDRA Lab, C-TARA, IIT Bombay
 | `notes_v3.md` | lines for the viewer's "Where the data is imprecise" panel |
 | `SERVER_STEPS.md` | NDVI, crop cycles and build on the RuDRA server with its current scripts |
 | `loni_field_viewer_drone_v3b.html` | the viewer, once built on the server |
+| `loni_plot_boundaries.html` | old SAM fields and new drone plots side by side on synced maps over the drone image (works offline) |
 
 Rebuild the units:
 
