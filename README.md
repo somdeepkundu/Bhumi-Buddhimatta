@@ -12,6 +12,8 @@ RuDRA Lab · C-TARA · IIT Bombay
 | **Multilingual Crop Kc App** | [Launch](https://somdeepkundu.github.io/crop_kc_app_v3f.html/) | Geo-tagged field ground truth (PWA) |
 | **AOI1 ET–NDVI Map** | [Launch](https://somdeepkundu.github.io/Bhumi-Buddhimatta/VNMKV/07_AOI1_ET_NDVI_map.html) | Interactive NDVI–ET visualization for VNMKV AOI1 |
 | **Crop Kc Finder v4.1** | [Launch](https://somdeepkundu.github.io/Bhumi-Buddhimatta/VNMKV/Crop%20Kc%20Finder%20v4.1.html) | Updated crop coefficient explorer with local AOI integration |
+| **Loni plots, gut by gut** | [Launch](https://somdeepkundu.github.io/Bhumi-Buddhimatta/loni_viewer_v3/loni_plots_per_gut.html) | Map + chart of all 469 Loni Devkar guts on the kharif 2023 drone image: old segmentation model vs new model |
+| **Loni plot labeller** | [Launch](https://somdeepkundu.github.io/Bhumi-Buddhimatta/plot_labeller/) | Check the model's plots gut by gut: keep, reject, or draw missed fields; labels train the next model |
 
 ## Use offline
 Download any `.html` file and open it — everything runs locally.  

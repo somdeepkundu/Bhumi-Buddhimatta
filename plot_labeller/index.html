@@ -1,0 +1,167 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Loni Plot Labeller</title>
+<meta name="description" content="Check the new model's plots gut by gut on the kharif 2023 drone image of Loni Devkar: keep, reject, or draw the fields it missed.">
+<style>
+:root{--bg:#f6f3ec;--card:#fffdf8;--ink:#1f2a24;--mute:#6b736c;--line:#ddd6c8;--old:#c8862a;--new:#16867a;--no:#b8463a;--hi:#1f2a24}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141816;--card:#1c211e;--ink:#e9ece6;--mute:#98a097;--line:#2f3631;--old:#e0a14a;--new:#3cc2b0;--no:#e2705f;--hi:#fff}}
+:root[data-theme="dark"]{--bg:#141816;--card:#1c211e;--ink:#e9ece6;--mute:#98a097;--line:#2f3631;--old:#e0a14a;--new:#3cc2b0;--no:#e2705f;--hi:#fff}
+*{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+header h1{font:600 18px Georgia,serif;margin:0}
+.pg{flex:1;min-width:120px;height:6px;background:var(--line);border-radius:3px;overflow:hidden}.pg i{display:block;height:100%;background:var(--new)}
+.pgt{color:var(--mute);font-size:12.5px;font-variant-numeric:tabular-nums}
+button,select,input{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:7px 11px;cursor:pointer}
+button.pri{background:var(--ink);color:var(--bg);border-color:var(--ink)}button.on{background:var(--new);color:#fff;border-color:var(--new)}
+main{flex:1;display:grid;grid-template-columns:1fr 300px;min-height:0}
+#stage{position:relative;overflow:hidden;background:#2a2d2a;touch-action:none}
+#stage svg{width:100%;height:100%;display:block;cursor:grab}
+#stage.draw svg{cursor:crosshair}
+aside{border-left:1px solid var(--line);padding:14px;overflow:auto;display:flex;flex-direction:column;gap:12px}
+.gh b{font:600 20px Georgia,serif}.gh small{color:var(--mute);display:block}
+.cnt{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}.cnt div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 8px}.cnt small{display:block;color:var(--mute);font-size:11.5px}.cnt span{font-size:17px;font-variant-numeric:tabular-nums}
+.key{font-size:12.5px;color:var(--mute)}.key div{display:flex;align-items:center;gap:8px;margin:3px 0}.sw{width:22px;height:12px;border-radius:2px;border:2px solid}
+.row{display:flex;gap:6px;flex-wrap:wrap}.row>*{flex:1}
+.hint{font-size:12.5px;color:var(--mute);background:var(--card);border:1px dashed var(--line);border-radius:8px;padding:8px 10px}
+
+kbd{font:11px ui-monospace,monospace;border:1px solid var(--line);border-radius:4px;padding:0 4px;background:var(--card)}
+#tools{position:absolute;left:10px;top:10px;display:flex;gap:6px;z-index:2}
+#tools button{background:#fffdf8ee;color:#1f2a24;border-color:#0002}#tools button.on{background:var(--new);color:#fff}
+#zoom{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:4px;z-index:2}#zoom button{background:#fffdf8ee;color:#1f2a24;width:34px;padding:6px 0}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);max-width:460px;padding:18px}
+dialog h2{font:600 18px Georgia,serif;margin:0 0 8px}dialog p{margin:0 0 10px}dialog::backdrop{background:#0006}
+@media (max-width:820px){main{grid-template-columns:1fr;grid-template-rows:58vh auto}aside{border-left:0;border-top:1px solid var(--line)}header h1{font-size:16px}}
+.logos{display:inline-flex;align-items:center;gap:14px;background:#fff;border-radius:10px;padding:6px 12px}.logos a{display:block;line-height:0}.logos img{height:34px;width:auto;display:block}.logos a:hover img{opacity:.8}@media (max-width:820px){.logos{gap:10px}.logos img{height:36px}.logos{order:9;display:flex;width:100%;justify-content:space-around}}
+</style></head><body>
+<header><h1>Plot labeller</h1><div class="pg"><i id="pgb"></i></div><span class="pgt" id="pgt"></span>
+<select id="jump" aria-label="Go to gut"></select><button id="help">?</button><nav class="logos" aria-label="Partners"><a href="https://rgstc.maharashtra.gov.in/" target="_blank" rel="noopener" title="Rajiv Gandhi Science and Technology Commission, Government of Maharashtra"><img src="logos/rgstc.webp" alt="Rajiv Gandhi Science and Technology Commission, Government of Maharashtra"></a><a href="https://www.rudra.iitb.ac.in/" target="_blank" rel="noopener" title="RuDRA, Rural Data Research and Analysis Lab"><img src="logos/rudra.webp" alt="RuDRA, Rural Data Research and Analysis Lab"></a><a href="https://www.ctara.iitb.ac.in/" target="_blank" rel="noopener" title="C-TARA, Centre for Technology Alternatives for Rural Areas"><img src="logos/ctara.webp" alt="C-TARA, Centre for Technology Alternatives for Rural Areas"></a><a href="https://www.iitb.ac.in/" target="_blank" rel="noopener" title="IIT Bombay"><img src="logos/iitb.webp" alt="IIT Bombay"></a></nav></header>
+<main>
+<div id="stage"><div id="tools"><button id="tMark" class="on">Mark</button><button id="tDraw">Draw missed field</button></div>
+<div id="zoom"><button id="zi">+</button><button id="zo">−</button><button id="zf" title="Fit">⤢</button></div><svg id="sv"></svg></div>
+<aside>
+<div class="gh"><b id="gname"></b><small id="ginfo"></small></div>
+<div class="cnt"><div><small>Field</small><span id="cF">0</span></div><div><small>Not field</small><span id="cN">0</span></div><div><small>To check</small><span id="cU">0</span></div></div>
+<div class="key">
+<div><span class="sw" style="border-color:var(--new);background:#16867a40"></span>Field (keep)</div>
+<div><span class="sw" style="border-color:var(--no);background:repeating-linear-gradient(45deg,#b8463a55 0 3px,transparent 3px 6px)"></span>Not field (house, road, trees, scrub, water)</div>
+<div><span class="sw" style="border-color:#f3c96b;border-style:dashed"></span>To check: other model's guess, tap to decide</div>
+<div><span class="sw" style="border-color:#7fd7ff;background:#7fd7ff40"></span>Field you drew</div>
+<div><span class="sw" style="border-color:#111;border-width:3px"></span>Gut boundary</div></div>
+<div class="hint" id="hint">Tap a plot to switch it: field → not field → to check. Teal plots are the new model's, already marked field. Yellow dashed ones are the old model's or set-aside segments.</div>
+<div class="row"><button id="allno">Rest of yellow → not field</button></div>
+<div class="row"><button id="prev">← Prev</button><button class="pri" id="done">Gut done, next →</button></div>
+<div class="row"><input id="who" placeholder="Your name" autocomplete="name"></div>
+<div class="row"><button id="exp">Download labels</button><button id="imp">Load labels</button><input type="file" id="file" accept=".json,.geojson" hidden></div>
+<div class="key">Keys: <kbd>F</kbd> field <kbd>X</kbd> not field (plot under cursor) · <kbd>D</kbd> draw · <kbd>Enter</kbd> finish shape · <kbd>Esc</kbd> cancel · <kbd>Z</kbd> undo point · <kbd>→</kbd> done & next · <kbd>←</kbd> prev</div>
+<div class="key" style="margin-top:auto">Guts are ordered by how much the new model left uncovered. Labels stay in this browser; download them to send. Somdeep Kundu, RuDRA Lab, C-TARA, IIT Bombay.</div>
+</aside></main>
+<div id="toast"></div>
+<dialog id="dlg"><h2 id="dh"></h2><p id="dp"></p><div class="row"><button id="dskip">Skip</button><button class="pri" id="dnext">Next</button></div></dialog>
+<script>
+const $=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg';
+let G=[],gi=0,S={lab:{},drawn:{},done:{}},mode='mark',pts=[],hover=null,vb=null;
+const KEY='loni_labels_v1';
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)S=Object.assign(S,s)}catch(e){}}
+function toast(t){const e=$('toast');e.textContent=t;e.style.opacity=1;clearTimeout(e._t);e._t=setTimeout(()=>e.style.opacity=0,1600)}
+function state(c){const v=S.lab[c[0]];if(v!==undefined)return v;return c[1]==='n'?1:null}
+function el(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);p&&p.appendChild(e);return e}
+const P=a=>a.map(p=>p.join(',')).join(' ');
+function render(){const g=G[gi],sv=$('sv');sv.innerHTML='';
+ if(!vb)fit();sv.setAttribute('viewBox',vb.join(' '));
+ const defs=el('defs',{},sv);const pat=el('pattern',{id:'hx',width:6,height:6,patternUnits:'userSpaceOnUse',patternTransform:'rotate(45)'},defs);el('rect',{width:3,height:6,fill:'#e2705f88'},pat);
+ el('image',{href:g.img,x:0,y:0,width:g.w,height:g.h,preserveAspectRatio:'none'},sv);
+ const sw=Math.max(.6,vb[2]/700);
+ // gut line under plots
+ g.gut.forEach(r=>el('polygon',{points:P(r),fill:'none',stroke:'#111','stroke-width':3.2*sw,opacity:.85,'pointer-events':'none'},sv));
+ g.gut.forEach(r=>el('polygon',{points:P(r),fill:'none',stroke:'#fff','stroke-width':1*sw,'stroke-dasharray':`${4*sw} ${4*sw}`,'pointer-events':'none'},sv));
+ const ord=[...g.c].sort((a,b)=>b[3]-a[3]);
+ ord.forEach(c=>{const s=state(c);const a={points:P(c[2]),'stroke-width':(s===null?1.8:2)*sw,'data-id':c[0],style:'cursor:pointer'};
+  if(s===1)Object.assign(a,{fill:'#16867a',  'fill-opacity':.28,stroke:'#3cc2b0'});
+  else if(s===0)Object.assign(a,{fill:'url(#hx)',stroke:'#e2705f'});
+  else Object.assign(a,{fill:'#f3c96b','fill-opacity':.06,stroke:'#f3c96b','stroke-dasharray':`${5*sw} ${3*sw}`});
+  const p=el('polygon',a,sv);p.onclick=e=>{if(mode!=='mark')return;e.stopPropagation();cycle(c)};p.onmouseenter=()=>hover=c;p.onmouseleave=()=>{if(hover===c)hover=null}});
+ (S.drawn[g.gi]||[]).forEach((d,k)=>{const p=el('polygon',{points:P(d),fill:'#7fd7ff','fill-opacity':.3,stroke:'#7fd7ff','stroke-width':2*sw,style:'cursor:pointer'},sv);
+  p.onclick=e=>{if(mode!=='mark')return;e.stopPropagation();if(confirmDel()){S.drawn[g.gi].splice(k,1);save();render();toast('Drawn field removed')}}});
+ if(pts.length){el('polyline',{points:P(pts),fill:'none',stroke:'#7fd7ff','stroke-width':2*sw},sv);pts.forEach(p=>el('circle',{cx:p[0],cy:p[1],r:3*sw,fill:'#7fd7ff'},sv))}
+ side()}
+let delArm=0;function confirmDel(){const t=Date.now();if(t-delArm<1500){delArm=0;return true}delArm=t;toast('Tap again to remove this drawn field');return false}
+function cycle(c){const s=state(c),n=s===1?0:s===0?null:1;
+ if(n===null&&c[1]==='n'){S.lab[c[0]]=null}else S.lab[c[0]]=n;
+ if(n===(c[1]==='n'?1:null))delete S.lab[c[0]];save();render()}
+function setLab(c,v){S.lab[c[0]]=v;save();render()}
+function side(){const g=G[gi];let f=0,n=0,u=0;g.c.forEach(c=>{const s=state(c);s===1?f++:s===0?n++:u++});f+=(S.drawn[g.gi]||[]).length;
+ $('cF').textContent=f;$('cN').textContent=n;$('cU').textContent=u;
+ $('gname').textContent='Gut '+g.s+(S.done[g.gi]?'  ✓':'');
+ $('ginfo').textContent=`${(g.A/1e4).toFixed(2)} ha · new model covers ${g.cov}% · ${gi+1} of ${G.length} in the queue`;
+ const d=Object.keys(S.done).length;$('pgb').style.width=(d/G.length*100)+'%';$('pgt').textContent=`${d} / ${G.length} guts done`;
+ $('jump').value=gi;$('done').textContent=S.done[g.gi]?'Next →':'Gut done, next →'}
+function fit(){const g=G[gi],st=$('stage').getBoundingClientRect(),ar=st.width/st.height,pad=.03;
+ let w=g.w*(1+pad*2),h=g.h*(1+pad*2);if(w/h<ar)w=h*ar;else h=w/ar;vb=[g.w/2-w/2,g.h/2-h/2,w,h]}
+function go(i){gi=Math.max(0,Math.min(G.length-1,i));vb=null;pts=[];render();try{localStorage.setItem(KEY+'_pos',gi)}catch(e){}}
+/* pan & zoom */
+const sv=$('sv');let drag=null,pinch=null;const ptrs=new Map();
+function toSvg(x,y){const r=sv.getBoundingClientRect();return[vb[0]+(x-r.left)/r.width*vb[2],vb[1]+(y-r.top)/r.height*vb[3]]}
+function zoomAt(f,x,y){const [px,py]=toSvg(x,y);vb=[px-(px-vb[0])*f,py-(py-vb[1])*f,vb[2]*f,vb[3]*f];render()}
+sv.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.deltaY>0?1.15:1/1.15,e.clientX,e.clientY)},{passive:false});
+sv.addEventListener('pointerdown',e=>{ptrs.set(e.pointerId,[e.clientX,e.clientY]);if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch={d:Math.hypot(a[0]-b[0],a[1]-b[1])};drag=null;return}
+ drag={x:e.clientX,y:e.clientY,vb:[...vb],moved:false}});
+sv.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,[e.clientX,e.clientY]);
+ if(pinch&&ptrs.size===2){const [a,b]=[...ptrs.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);zoomAt(pinch.d/d,(a[0]+b[0])/2,(a[1]+b[1])/2);pinch.d=d;return}
+ if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(dx,dy)>5)drag.moved=true;if(!drag.moved)return;
+ const r=sv.getBoundingClientRect();vb=[drag.vb[0]-dx/r.width*vb[2],drag.vb[1]-dy/r.height*vb[3],vb[2],vb[3]];sv.setAttribute('viewBox',vb.join(' '))});
+function up(e){ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;
+ if(drag&&!drag.moved&&mode==='draw'&&e.type==='pointerup'){const p=toSvg(e.clientX,e.clientY);
+  if(pts.length>2){const f=pts[0],r=sv.getBoundingClientRect(),tol=12/r.width*vb[2];if(Math.hypot(p[0]-f[0],p[1]-f[1])<tol){finish();drag=null;return}}
+  pts.push([+p[0].toFixed(1),+p[1].toFixed(1)]);render()}
+ drag=null}
+sv.addEventListener('pointerup',up);sv.addEventListener('pointercancel',up);
+function finish(){if(pts.length<3){toast('A field needs at least 3 corners');return}const g=G[gi];(S.drawn[g.gi]=S.drawn[g.gi]||[]).push([...pts,pts[0]]);pts=[];save();render();toast('Field added')}
+function setMode(m){mode=m;pts=[];$('tMark').classList.toggle('on',m==='mark');$('tDraw').classList.toggle('on',m==='draw');$('stage').classList.toggle('draw',m==='draw');
+ $('hint').textContent=m==='draw'?'Tap the corners of a field the models missed. Tap the first corner again (or press Enter) to close it. Pinch or scroll to zoom.':'Tap a plot to switch it: field → not field → to check. Teal plots are the new model\'s, already marked field. Yellow dashed ones are the old model\'s or set-aside segments.';render()}
+$('tMark').onclick=()=>setMode('mark');$('tDraw').onclick=()=>setMode('draw');
+$('zi').onclick=()=>{const r=sv.getBoundingClientRect();zoomAt(1/1.4,r.left+r.width/2,r.top+r.height/2)};$('zo').onclick=()=>{const r=sv.getBoundingClientRect();zoomAt(1.4,r.left+r.width/2,r.top+r.height/2)};$('zf').onclick=()=>{vb=null;render()};
+$('allno').onclick=()=>{let k=0;G[gi].c.forEach(c=>{if(state(c)===null){S.lab[c[0]]=0;k++}});save();render();toast(k+' marked not field')};
+$('prev').onclick=()=>go(gi-1);
+$('done').onclick=()=>{if(pts.length){toast('Finish or cancel the field you are drawing');return}S.done[G[gi].gi]=Date.now();save();
+ let j=gi+1;while(j<G.length&&S.done[G[j].gi])j++;if(j>=G.length){toast('All guts done. Download your labels.');side();return}go(j)};
+$('jump').onchange=e=>go(+e.target.value);
+addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;const k=e.key.toLowerCase();
+ if(k==='d')setMode(mode==='draw'?'mark':'draw');else if(k==='enter'&&mode==='draw')finish();else if(k==='escape'){pts=[];render()}
+ else if(k==='z'&&pts.length){pts.pop();render()}else if(k==='arrowright')$('done').click();else if(k==='arrowleft')go(gi-1);
+ else if(k==='f'&&hover)setLab(hover,1);else if(k==='x'&&hover)setLab(hover,0)});
+addEventListener('resize',()=>{vb=null;render()});
+/* export / import */
+function toUTM(g,p){return[+(g.x0+p[0]*g.res).toFixed(2),+(g.y1-p[1]*g.res).toFixed(2)]}
+$('exp').onclick=()=>{const feats=[],seen=new Set();
+ G.forEach(g=>{const done=!!S.done[g.gi];
+  g.c.forEach(c=>{if(seen.has(c[0]))return;let s=state(c),how=S.lab[c[0]]!==undefined?'human':'model';
+   if(s===null){if(!done)return;s=0;how='left unchecked in a done gut'}
+   if(c[1]==='n'&&how==='model'&&!done)return;seen.add(c[0]);
+   feats.push({type:'Feature',properties:{cid:c[0],source:{n:'new model',o:'old model',m:'set aside'}[c[1]],field:s,label:how,gut:g.s},geometry:{type:'Polygon',coordinates:[c[2].map(p=>toUTM(g,p))]}})});
+  (S.drawn[g.gi]||[]).forEach((d,k)=>feats.push({type:'Feature',properties:{cid:`d${g.gi}_${k}`,source:'drawn',field:1,label:'human',gut:g.s},geometry:{type:'Polygon',coordinates:[d.map(p=>toUTM(g,p))]}}))});
+ const out={type:'FeatureCollection',name:'loni_plot_labels',crs:{type:'name',properties:{name:'urn:ogc:def:crs:EPSG::32643'}},
+  labeller:$('who').value||'',exported:new Date().toISOString(),guts_done:G.filter(g=>S.done[g.gi]).map(g=>g.s),state:S,features:feats};
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(out)],{type:'application/geo+json'}));
+ a.download=`loni_labels_${($('who').value||'me').replace(/\W+/g,'_')}_${new Date().toISOString().slice(0,10)}.geojson`;a.click();toast(`${feats.length} labelled plots saved`)};
+$('imp').onclick=()=>$('file').click();
+$('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const j=JSON.parse(await f.text());if(!j.state)throw 0;
+ for(const k in j.state.lab)S.lab[k]=j.state.lab[k];for(const k in j.state.drawn)S.drawn[k]=j.state.drawn[k];for(const k in j.state.done)S.done[k]=j.state.done[k];
+ save();render();toast('Labels loaded')}catch(err){toast('That file is not a labels file from this page')}};
+$('who').oninput=e=>{try{localStorage.setItem(KEY+'_who',e.target.value)}catch(_){}}
+/* guide */
+const T=[["Check the new model, gut by gut","Each screen is one gut on the kharif 2023 drone image, outlined in black. Guts where the new model missed the most come first."],
+["Tap to decide","Teal plots are the new model's and start as field. Tap once for not field (house, road, tree clump, scrub, water), again for to check. Yellow dashed outlines are the old model's or set-aside guesses: tap to make them field."],
+["Draw what both missed","Switch to Draw missed field and tap the corners of the field. Tap the first corner again to close it. Pinch or scroll to zoom, drag to move."],
+["Finish the gut","Press Gut done when every field in the gut is teal or blue. Anything still yellow then counts as not field."],
+["Send the labels","Your work stays in this browser. Download labels and send the file; the model learns from it in the next round."]];
+let ti=0;const dlg=$('dlg');function tstep(){$('dh').textContent=T[ti][0];$('dp').textContent=T[ti][1];$('dnext').textContent=ti===T.length-1?'Start':'Next'}
+function openT(){ti=0;tstep();dlg.showModal()}$('dnext').onclick=()=>{if(ti<T.length-1){ti++;tstep()}else{dlg.close();try{localStorage.setItem(KEY+'_tour','1')}catch(e){}}};
+$('dskip').onclick=()=>{dlg.close();try{localStorage.setItem(KEY+'_tour','1')}catch(e){}};$('help').onclick=openT;
+/* start */
+fetch('review.json').then(r=>r.json()).then(d=>{G=d;load();
+ $('jump').innerHTML=G.map((g,i)=>`<option value="${i}">Gut ${g.s} · ${g.cov}% covered</option>`).join('');
+ try{$('who').value=localStorage.getItem(KEY+'_who')||''}catch(e){}
+ let p=0;try{p=+(localStorage.getItem(KEY+'_pos')||0)}catch(e){}go(p);
+ let seen=null;try{seen=localStorage.getItem(KEY+'_tour')}catch(e){}if(!seen)openT()});
+</script></body></html>
