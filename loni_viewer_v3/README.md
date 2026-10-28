@@ -18,6 +18,7 @@ Somdeep Kundu, RuDRA Lab, C-TARA, IIT Bombay
 | `SERVER_STEPS.md` | NDVI, crop cycles and build on the RuDRA server with its current scripts |
 | `loni_field_viewer_drone_v3b.html` | the viewer, once built on the server |
 | `loni_plots_per_gut.html` | interactive map + chart of every gut over the kharif 2023 drone image: old segmentation model vs new model (plot count, median size, gut covered, plots under 200 m²; old / new / change). Search or pick a gut to zoom to it and see its plots and numbers. Works offline and on phones, with a 5-step guide |
+| `village_map/` | from the Loni Devkar village map (DWG → `LONI-DEOKAR_dwg.gpkg`): roads, streams, nala, cart tracks, wells, mango trees, temple, 550 boundary stones (`village_map_features.geojson`); and 233 ground-truth crop points from 2022-23 and 2024 field work (`loni_ground_truth.geojson`, flagged in/out of each model's plots) |
 | `plots_per_gut.py` | per-gut plot areas: each plot goes to the gut holding its centre point |
 | `plots_per_gut_map.py`, `plots_per_gut_template.html` | build the page (Leaflet and the drone image inlined) |
 | `loni_plot_boundaries.html` | old SAM fields and new drone plots side by side on synced maps over the drone image (works offline) |
