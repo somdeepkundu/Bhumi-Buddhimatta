@@ -37,7 +37,7 @@ dialog h2{font:600 18px Georgia,serif;margin:0 0 8px}dialog p{margin:0 0 10px}di
 <header><h1>Plot labeller</h1><div class="pg"><i id="pgb"></i></div><span class="pgt" id="pgt"></span>
 <select id="jump" aria-label="Go to gut"></select><button id="help">?</button><nav class="logos" aria-label="Partners"><a href="https://rgstc.maharashtra.gov.in/" target="_blank" rel="noopener" title="Rajiv Gandhi Science and Technology Commission, Government of Maharashtra"><img src="logos/rgstc.webp" alt="Rajiv Gandhi Science and Technology Commission, Government of Maharashtra"></a><a href="https://www.rudra.iitb.ac.in/" target="_blank" rel="noopener" title="RuDRA, Rural Data Research and Analysis Lab"><img src="logos/rudra.webp" alt="RuDRA, Rural Data Research and Analysis Lab"></a><a href="https://www.ctara.iitb.ac.in/" target="_blank" rel="noopener" title="C-TARA, Centre for Technology Alternatives for Rural Areas"><img src="logos/ctara.webp" alt="C-TARA, Centre for Technology Alternatives for Rural Areas"></a><a href="https://www.iitb.ac.in/" target="_blank" rel="noopener" title="IIT Bombay"><img src="logos/iitb.webp" alt="IIT Bombay"></a></nav></header>
 <main>
-<div id="stage"><div id="tools"><button id="tMark" class="on">Mark</button><button id="tDraw">Draw missed field</button></div>
+<div id="stage"><div id="tools"><button id="tMark" class="on">Mark</button><button id="tDraw">Draw missed field</button><button id="tHi" hidden title="Sharper 2022 survey image (team only)">2022 image</button></div>
 <div id="zoom"><button id="zi">+</button><button id="zo">−</button><button id="zf" title="Fit">⤢</button></div><svg id="sv"></svg></div>
 <aside>
 <div class="gh"><b id="gname"></b><small id="ginfo"></small></div>
@@ -62,6 +62,10 @@ dialog h2{font:600 18px Georgia,serif;margin:0 0 8px}dialog p{margin:0 0 10px}di
 const $=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg';
 let G=[],gi=0,S={lab:{},drawn:{},done:{}},mode='mark',pts=[],hover=null,vb=null;
 const KEY='loni_labels_v1';
+// Team-only second image (2022 survey, ~0.1 m). The public page holds none of it: it only loads chips from a private
+// address given once as ?hi=https://... (remembered in this browser). Without it the button stays hidden.
+let HI='',hiOn=false;
+try{const q=new URLSearchParams(location.search).get('hi');if(q)localStorage.setItem('loni_hi_base',q.replace(/\/$/,''));HI=localStorage.getItem('loni_hi_base')||''}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function load(){try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)S=Object.assign(S,s)}catch(e){}}
 function toast(t){const e=$('toast');e.textContent=t;e.style.opacity=1;clearTimeout(e._t);e._t=setTimeout(()=>e.style.opacity=0,1600)}
@@ -71,7 +75,8 @@ const P=a=>a.map(p=>p.join(',')).join(' ');
 function render(){const g=G[gi],sv=$('sv');sv.innerHTML='';
  if(!vb)fit();sv.setAttribute('viewBox',vb.join(' '));
  const defs=el('defs',{},sv);const pat=el('pattern',{id:'hx',width:6,height:6,patternUnits:'userSpaceOnUse',patternTransform:'rotate(45)'},defs);el('rect',{width:3,height:6,fill:'#e2705f88'},pat);
- el('image',{href:g.img,x:0,y:0,width:g.w,height:g.h,preserveAspectRatio:'none'},sv);
+ const im=el('image',{href:(hiOn&&HI)?`${HI}/g${g.gi}.jpg`:g.img,x:0,y:0,width:g.w,height:g.h,preserveAspectRatio:'none'},sv);
+ if(hiOn&&HI)im.addEventListener('error',()=>{hiOn=false;$('tHi').classList.remove('on');toast('2022 image is not available for this gut');render()});
  const sw=Math.max(.6,vb[2]/700);
  // gut line under plots
  g.gut.forEach(r=>el('polygon',{points:P(r),fill:'none',stroke:'#111','stroke-width':3.2*sw,opacity:.85,'pointer-events':'none'},sv));
@@ -120,6 +125,8 @@ sv.addEventListener('pointerup',up);sv.addEventListener('pointercancel',up);
 function finish(){if(pts.length<3){toast('A field needs at least 3 corners');return}const g=G[gi];(S.drawn[g.gi]=S.drawn[g.gi]||[]).push([...pts,pts[0]]);pts=[];save();render();toast('Field added')}
 function setMode(m){mode=m;pts=[];$('tMark').classList.toggle('on',m==='mark');$('tDraw').classList.toggle('on',m==='draw');$('stage').classList.toggle('draw',m==='draw');
  $('hint').textContent=m==='draw'?'Tap the corners of a field the models missed. Tap the first corner again (or press Enter) to close it. Pinch or scroll to zoom.':'Tap a plot to switch it: field → not field → to check. Teal plots are the new model\'s, already marked field. Yellow dashed ones are the old model\'s or set-aside segments.';render()}
+if(HI)$('tHi').hidden=false;
+$('tHi').onclick=()=>{hiOn=!hiOn;$('tHi').classList.toggle('on',hiOn);render()};
 $('tMark').onclick=()=>setMode('mark');$('tDraw').onclick=()=>setMode('draw');
 $('zi').onclick=()=>{const r=sv.getBoundingClientRect();zoomAt(1/1.4,r.left+r.width/2,r.top+r.height/2)};$('zo').onclick=()=>{const r=sv.getBoundingClientRect();zoomAt(1.4,r.left+r.width/2,r.top+r.height/2)};$('zf').onclick=()=>{vb=null;render()};
 $('allno').onclick=()=>{let k=0;G[gi].c.forEach(c=>{if(state(c)===null){S.lab[c[0]]=0;k++}});save();render();toast(k+' marked not field')};
