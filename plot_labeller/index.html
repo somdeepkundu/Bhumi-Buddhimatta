@@ -93,7 +93,7 @@ function cycle(c){const s=state(c),n=s===1?0:s===0?null:1;
 function setLab(c,v){S.lab[c[0]]=v;save();render()}
 function side(){const g=G[gi];let f=0,n=0,u=0;g.c.forEach(c=>{const s=state(c);s===1?f++:s===0?n++:u++});f+=(S.drawn[g.gi]||[]).length;
  $('cF').textContent=f;$('cN').textContent=n;$('cU').textContent=u;
- $('gname').textContent='Gut '+g.s+(S.done[g.gi]?'  ✓':'');
+ $('gname').textContent='Gut '+g.s+(S.done[g.gi]?' (done)':'');
  $('ginfo').textContent=`${(g.A/1e4).toFixed(2)} ha · new model covers ${g.cov}% · ${gi+1} of ${G.length} in the queue`;
  const d=Object.keys(S.done).length;$('pgb').style.width=(d/G.length*100)+'%';$('pgt').textContent=`${d} / ${G.length} guts done`;
  $('jump').value=gi;$('done').textContent=S.done[g.gi]?'Next →':'Gut done, next →'}
