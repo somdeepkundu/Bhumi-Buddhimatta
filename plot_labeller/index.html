@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<!doctype html><html lang="en"><head><meta name="referrer" content="no-referrer"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>Loni Plot Labeller</title>
 <meta property="og:title" content="Loni plot labeller"><meta property="og:description" content="Check the model's plots gut by gut on the kharif 2023 drone image of Loni Devkar. RuDRA Lab, C-TARA, IIT Bombay."><meta property="og:image" content="https://somdeepkundu.github.io/Bhumi-Buddhimatta/plot_labeller/thumb.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:url" content="https://somdeepkundu.github.io/Bhumi-Buddhimatta/plot_labeller/"><meta property="og:type" content="website"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://somdeepkundu.github.io/Bhumi-Buddhimatta/plot_labeller/thumb.png">
 <meta name="description" content="Check the new model's plots gut by gut on the kharif 2023 drone image of Loni Devkar: keep, reject, or draw the fields it missed.">
@@ -65,7 +65,7 @@ const KEY='loni_labels_v1';
 // Team-only second image (2022 survey, ~0.1 m). The public page holds none of it: it only loads chips from a private
 // address given once as ?hi=https://... (remembered in this browser). Without it the button stays hidden.
 let HI='',hiOn=false;
-try{const q=new URLSearchParams(location.search).get('hi');if(q)localStorage.setItem('loni_hi_base',q.replace(/\/$/,''));HI=localStorage.getItem('loni_hi_base')||''}catch(e){}
+try{const q=new URLSearchParams(location.search).get('hi');if(q)localStorage.setItem('loni_hi_base',q.replace(/\/$/,''));if(q){const u=new URL(location.href);u.searchParams.delete('hi');history.replaceState(null,'',u.pathname+u.search+u.hash)}HI=localStorage.getItem('loni_hi_base')||''}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function load(){try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)S=Object.assign(S,s)}catch(e){}}
 function toast(t){const e=$('toast');e.textContent=t;e.style.opacity=1;clearTimeout(e._t);e._t=setTimeout(()=>e.style.opacity=0,1600)}
