@@ -14,6 +14,7 @@ RuDRA Lab · C-TARA · IIT Bombay
 | **Crop Kc Finder v4.1** | [Launch](https://somdeepkundu.github.io/Bhumi-Buddhimatta/VNMKV/Crop%20Kc%20Finder%20v4.1.html) | Updated crop coefficient explorer with local AOI integration |
 | **Loni plots, gut by gut** | [Launch](https://somdeepkundu.github.io/Bhumi-Buddhimatta/loni_viewer_v3/loni_plots_per_gut.html) | Map + chart of all 469 Loni Devkar guts on the kharif 2023 drone image: old segmentation model vs new model |
 | **Loni plot labeller** | [Launch](https://somdeepkundu.github.io/Bhumi-Buddhimatta/plot_labeller/) | Check the model's plots gut by gut: keep, reject, or draw missed fields; labels train the next model |
+| **Loni old map and new map** | [Launch](https://somdeepkundu.github.io/Bhumi-Buddhimatta/loni_viewer_v3/loni_old_vs_new_map.html) | Slide between the old and the new map on the drone image: gut boundaries, roads, streams, ponds and wells |
 
 ## Use offline
 Download any `.html` file and open it — everything runs locally.  
