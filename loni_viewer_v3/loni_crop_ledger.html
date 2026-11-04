@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Loni Devkar Crop Ledger</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,7 +11,7 @@
   --paper-solid:#f6f8f3;
   --ink:#16201a; --ink-2:#465249; --ink-3:#6f7a72; --rule:#cdd4ca; --gut:#8b978e;
   --kharif:#dee3da;
-  --g-sugarcane:#008300; --g-banana:#eda100; --g-onion:#e87ba4; --g-seasonal:#6250d6; --g-other:#8c877d; --g-unknown:#3f8f8a;
+  --g-sugarcane:#1d7f3a; --g-banana:#d99a00; --g-onion:#c2417a; --g-seasonal:#5a52c8; --g-other:#c45f27; --g-unknown:#8f8a80;
   --ok:#1c7722; --flag:#b8812b; --bad:#b0412e;
   --w-lo:#e9eef0; --w-hi:#1f5f8b; --e-lo:#f3ecdc; --e-hi:#a2461a; --sel:#16201a;
   --f-display:"Tiro Devanagari Marathi","Noto Serif Devanagari",Georgia,serif;
@@ -20,12 +21,12 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --ground:#0d1311; --land:#131b18; --soil:#2c2e28; --paper-solid:#121916;
   --ink:#e6ece7; --ink-2:#b2bcb5; --ink-3:#86918a; --rule:#27322d; --gut:#4a5951; --kharif:#18221e;
-  --g-sugarcane:#2a9d2a; --g-banana:#c98500; --g-onion:#d55181; --g-seasonal:#9085e9; --g-other:#8d8a83; --g-unknown:#5fb3ab;
+  --g-sugarcane:#48c46c; --g-banana:#f0c23a; --g-onion:#ec7fae; --g-seasonal:#a29bf3; --g-other:#ef9561; --g-unknown:#8e8a82;
   --w-lo:#1a2428; --w-hi:#6fb6e6; --e-lo:#262219; --e-hi:#f0a060; --sel:#f3f7f4; --ok:#88d479; --flag:#d6a240; --bad:#e0796a; color-scheme:dark}}
 :root[data-theme="dark"]{
   --ground:#0d1311; --land:#131b18; --soil:#2c2e28; --paper-solid:#121916;
   --ink:#e6ece7; --ink-2:#b2bcb5; --ink-3:#86918a; --rule:#27322d; --gut:#4a5951; --kharif:#18221e;
-  --g-sugarcane:#2a9d2a; --g-banana:#c98500; --g-onion:#d55181; --g-seasonal:#9085e9; --g-other:#8d8a83; --g-unknown:#5fb3ab;
+  --g-sugarcane:#48c46c; --g-banana:#f0c23a; --g-onion:#ec7fae; --g-seasonal:#a29bf3; --g-other:#ef9561; --g-unknown:#8e8a82;
   --w-lo:#1a2428; --w-hi:#6fb6e6; --e-lo:#262219; --e-hi:#f0a060; --sel:#f3f7f4; --ok:#88d479; --flag:#d6a240; --bad:#e0796a; color-scheme:dark}
 body{background:var(--ground);color:var(--ink);font:400 15px/1.55 var(--f-ui)}
 .wrap{max-width:1080px;margin:0 auto;padding-block:22px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
@@ -101,6 +102,21 @@ footer{font-size:.8rem;color:var(--ink-3);display:grid;gap:3px}
 #tip b{font-weight:600}
 .gutacc{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px;align-items:start}
 @media (max-width:760px){.gutacc{grid-template-columns:minmax(0,1fr)}}
+
+.ringbox{position:relative}
+#ring .arc{cursor:pointer;transition:opacity .15s}
+#ring.dim .arc:not(.on){opacity:.22}
+#ring.focus .arc:not(.f){opacity:.1}
+#ring .trk{transition:stroke-width .15s}
+#ring .trk.hl{stroke:var(--ink);stroke-width:1.4}
+#ring .monthzone{cursor:pointer}
+#ringTip{position:absolute;pointer-events:none;background:var(--paper-solid);border:1px solid var(--rule);border-radius:3px;padding:6px 8px;font-size:.76rem;line-height:1.4;max-width:230px;box-shadow:0 6px 18px -10px rgba(0,0,0,.4);z-index:2}
+#ringTip b{font-weight:600}
+.lgb{font:inherit;font-size:.78rem;color:var(--ink-2);background:transparent;border:1px solid transparent;border-radius:99px;padding:2px 9px 2px 6px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.lgb:hover{border-color:var(--rule)}
+.lgb[aria-pressed="true"]{border-color:var(--ink);color:var(--ink)}
+.lgdim .lgb[aria-pressed="false"]{opacity:.45}
+.hatch{background-image:repeating-linear-gradient(135deg,currentColor 0 2px,transparent 2px 5px)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -135,7 +151,8 @@ footer{font-size:.8rem;color:var(--ink-3);display:grid;gap:3px}
     <div class="ringbox">
       <svg id="ring" viewBox="0 0 440 440" role="img" aria-labelledby="ringTitle"><title id="ringTitle">Crop calendar ring</title></svg>
       <div class="legend" id="ringLegend"></div>
-      <p class="sub" style="text-align:center;font-size:.78rem">Each ring is one plot, the largest outermost. Arcs run from sowing to harvest; June is at the top and the year runs clockwise. Faded arcs are weak curve matches; outlined arcs were checked in the field.</p>
+      <div id="ringTip" hidden></div>
+      <p class="sub" style="text-align:center;font-size:.78rem">Each ring is one plot, the largest outermost. Arcs run from sowing to harvest, June at the top, clockwise. Striped arcs are weak curve matches; outlined arcs were checked in the field. Point at an arc to see it on the map, click a month to scrub the map to it, and click a crop below to isolate it.</p>
     </div>
   </div>
   <div class="facts" id="gutFacts"></div>
@@ -300,34 +317,58 @@ function arcPath(cx,cy,r0,r1,a0,a1){
   if(a1-a0>=359.9){a1=a0+359.9;}
   const L=a1-a0>180?1:0,[x0,y0]=polar(cx,cy,r1,a0),[x1,y1]=polar(cx,cy,r1,a1),[x2,y2]=polar(cx,cy,r0,a1),[x3,y3]=polar(cx,cy,r0,a0);
   return `M${x0.toFixed(2)},${y0.toFixed(2)}A${r1},${r1} 0 ${L} 1 ${x1.toFixed(2)},${y1.toFixed(2)}L${x2.toFixed(2)},${y2.toFixed(2)}A${r0},${r0} 0 ${L} 0 ${x3.toFixed(2)},${y3.toFixed(2)}Z`;}
+const UI={month:-1,focus:null,ringU:-1};
+const GRPS=["sugarcane","banana","onion","seasonal","other","unknown"];
+const GN={sugarcane:"Sugarcane",banana:"Banana",onion:"Onion",seasonal:"Seasonal grains & pulses",other:"Vegetables, fodder, fruit",unknown:"Not identified"};
 function drawRing(g){
   const [a,b]=D.wyIdx[wyi], span=b-a, cx=220, cy=220, R0=62, R1=158;
   const plots=unitsOf[g].filter(u=>!D.u[u][1]).sort((p,q)=>D.u[q][2]-D.u[p][2]);
   const MAXT=14, shown=plots.slice(0,MAXT), n=Math.max(shown.length,1), tw=(R1-R0)/n;
-  let s=`<title>Crop calendar ring, gut ${esc(D.gut[g])}</title>`;
-  // season band: Kharif Jun–Oct, Rabi Nov–Feb, Zaid Mar–May
+  let s=`<title>Crop calendar ring, gut ${esc(D.gut[g])}</title><defs>`+GRPS.map(gp=>`<pattern id="wk-${gp}" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" fill="var(--g-${gp})" fill-opacity=".28"/><rect width="2.2" height="5" fill="var(--g-${gp})"/></pattern>`).join("")+`</defs>`;
   const bands=[[0,5,"Kharif","खरीप"],[5,9,"Rabi","रब्बी"],[9,12,"Zaid","उन्हाळी"]];
   bands.forEach(([m0,m1,en,mr],k)=>{s+=`<path d="${arcPath(cx,cy,R1+6,R1+16,m0*30+.6,m1*30-.6)}" fill="var(--${k===1?"land":"kharif"})" stroke="var(--rule)" stroke-width=".6"/>`;
     const [tx,ty]=polar(cx,cy,R1+30,(m0+m1)*15);s+=`<text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="10.5" font-family="var(--f-ui)" fill="var(--ink-2)">${en} <tspan font-family="var(--f-display)">${mr}</tspan></text>`;});
   for(let m=0;m<12;m++){const ang=m*30;const [x0,y0]=polar(cx,cy,R0-4,ang),[x1,y1]=polar(cx,cy,R1+16,ang);
     s+=`<line x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}" stroke="var(--rule)" stroke-width="${m%3?0.5:1}"/>`;
-    const [lx,ly]=polar(cx,cy,R0-15,ang+15);s+=`<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="8.5" font-family="var(--f-data)" fill="var(--ink-3)">${MON[m]}</text>`;}
+    s+=`<path class="monthzone" data-m="${m}" d="${arcPath(cx,cy,R0-24,R0-5,ang+.5,ang+29.5)}" fill="${UI.month===m?"var(--ink)":"transparent"}" fill-opacity="${UI.month===m?.1:0}"><title>Show ${MON[m]} on the map</title></path>`;
+    const [lx,ly]=polar(cx,cy,R0-15,ang+15);s+=`<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="8.5" font-family="var(--f-data)" fill="var(--${UI.month===m?"ink":"ink-3"})" ${UI.month===m?'font-weight="600"':''} pointer-events="none">${MON[m]}</text>`;}
+  const present=new Set();
   shown.forEach((u,k)=>{const r1=R1-k*tw, r0=r1-tw+Math.min(1.4,tw*.18);
-    s+=`<path d="${arcPath(cx,cy,r0,r1,0,359.99)}" fill="var(--soil)" fill-opacity=".35"/>`;
-    for(let c=D.us0[u];c<D.us0[u+1];c++){let so=cyc(c,1),eo=cyc(c,2);if(eo<a||so>=b||so===0&&eo<a)continue;
+    s+=`<path class="trk" data-u="${u}" d="${arcPath(cx,cy,r0,r1,0,359.99)}" fill="var(--soil)" fill-opacity=".35" stroke="none"/>`;
+    for(let c=D.us0[u];c<D.us0[u+1];c++){let so=cyc(c,1),eo=cyc(c,2);if(eo<a||so>=b)continue;
       const s0=Math.max(so,a),e0=Math.min(eo+1,b);if(e0<=s0)continue;
-      const a0=(s0-a)/span*360,a1=(e0-a)/span*360,cr=CR[cyc(c,0)],lo=cyc(c,3);
-      s+=`<path d="${arcPath(cx,cy,r0,r1,a0+.3,a1-.3)}" fill="var(--g-${cr.grp})" fill-opacity="${lo===1?.45:.95}" ${lo===2?'stroke="var(--ink)" stroke-width="1.2"':''}><title>${esc(cr.en)} · plot ${D.u[u][3]} (${haTxt(D.u[u][2])}) · sown ${dstr(so)} · harvested ${dstr(eo)}${lo===1?" · weak match":lo===2?" · field-checked":""}</title></path>`;}
+      const a0=(s0-a)/span*360,a1=(e0-a)/span*360,cr=CR[cyc(c,0)],lo=cyc(c,3);present.add(cr.grp);
+      const f=UI.focus===cr.grp?" f":"";
+      s+=`<path class="arc${f}" data-u="${u}" data-c="${c}" d="${arcPath(cx,cy,r0,r1,a0+.3,a1-.3)}" fill="${lo===1?`url(#wk-${cr.grp})`:`var(--g-${cr.grp})`}" ${lo===2?'stroke="var(--ink)" stroke-width="1.3"':''}/>`;}
   });
-  const tot=unitsOf[g].reduce((t,u)=>t+D.u[u][2],0);
-  s+=`<text x="${cx}" y="${cy-10}" text-anchor="middle" font-family="var(--f-display)" font-size="24" fill="var(--ink)">${esc(D.gut[g])}</text>
-      <text x="${cx}" y="${cy+10}" text-anchor="middle" font-family="var(--f-ui)" font-size="9.5" fill="var(--ink-3)" letter-spacing=".08em">GUT · गट</text>
-      <text x="${cx}" y="${cy+24}" text-anchor="middle" font-family="var(--f-data)" font-size="9" fill="var(--ink-2)">${D.wys[wyi]}–${String(D.wys[wyi]+1).slice(2)}</text>`;
-  $("#ring").innerHTML=s;
-  const groups=[...new Set(CR.map(c=>c.grp))];
-  const GN={sugarcane:"Sugarcane",banana:"Banana",onion:"Onion",seasonal:"Seasonal grains & pulses",other:"Other crops",unknown:"Not identified"};
-  $("#ringLegend").innerHTML=groups.map(gp=>`<span class="chip"><span class="sw" style="background:var(--g-${gp})"></span>${GN[gp]}</span>`).join("")+(plots.length>MAXT?`<span>+${plots.length-MAXT} smaller plots not drawn</span>`:"");
+  if(UI.month>=0){const ang=UI.month*30+15,[x0,y0]=polar(cx,cy,R0-3,ang),[x1,y1]=polar(cx,cy,R1+18,ang);
+    s+=`<line x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round" pointer-events="none"/><circle cx="${x1.toFixed(1)}" cy="${y1.toFixed(1)}" r="3.2" fill="var(--ink)" pointer-events="none"/>`;}
+  s+=`<text x="${cx}" y="${cy-10}" text-anchor="middle" font-family="var(--f-display)" font-size="24" fill="var(--ink)" pointer-events="none">${esc(D.gut[g])}</text>
+      <text x="${cx}" y="${cy+10}" text-anchor="middle" font-family="var(--f-ui)" font-size="9.5" fill="var(--ink-3)" letter-spacing=".08em" pointer-events="none">GUT · गट</text>
+      <text x="${cx}" y="${cy+24}" text-anchor="middle" font-family="var(--f-data)" font-size="9" fill="var(--ink-2)" pointer-events="none">${D.wys[wyi]}–${String(D.wys[wyi]+1).slice(2)}</text>`;
+  const ring=$("#ring");ring.innerHTML=s;ring.classList.toggle("focus",!!UI.focus);
+  const el=$("#ringLegend");el.classList.toggle("lgdim",!!UI.focus);
+  el.innerHTML=GRPS.filter(gp=>present.has(gp)||UI.focus===gp).map(gp=>legendBtn(gp)).join("")+(plots.length>MAXT?`<span style="font-size:.76rem">+${plots.length-MAXT} smaller plots not drawn</span>`:"");
 }
+function legendBtn(gp){return `<button type="button" class="lgb" data-grp="${gp}" aria-pressed="${UI.focus===gp}"><span class="sw" style="background:var(--g-${gp})"></span>${GN[gp]}</button>`;}
+function setFocus(gp){UI.focus=UI.focus===gp?null:gp;if(curGut>=0)drawRing(curGut);if(typeof mapLegend==="function")mapLegend();if(typeof draw==="function"&&W0)draw();}
+document.addEventListener("click",e=>{const b=e.target.closest(".lgb");if(b)setFocus(b.dataset.grp);});
+function ringTipHtml(u,c){const cr=CR[cyc(c,0)],lo=cyc(c,3),so=cyc(c,1),eo=cyc(c,2);
+  return `<b>${esc(cr.en)}</b> <span class="mr" style="font-size:.85rem">${esc(cr.mr)}</span><br>Plot ${D.u[u][3]} · ${haTxt(D.u[u][2])}<br><span class="sub">sown ${dstr(so)}<br>harvested ${dstr(eo)} · ${so?nf0.format((eo-so)*D.step)+" days":""}</span>${lo===1?"<br><span class='sub'>weak curve match</span>":lo===2?"<br><span class='sub'>checked in the field</span>":""}`;}
+function ringFocusPlot(u){const ring=$("#ring");ring.querySelectorAll(".arc.on").forEach(e=>e.classList.remove("on"));ring.querySelectorAll(".trk.hl").forEach(e=>e.classList.remove("hl"));
+  if(u<0){ring.classList.remove("dim");return;}
+  const arcs=ring.querySelectorAll(`.arc[data-u="${u}"]`);arcs.forEach(e=>e.classList.add("on"));const t=ring.querySelector(`.trk[data-u="${u}"]`);if(t)t.classList.add("hl");ring.classList.toggle("dim",!!t);}
+(function(){const ring=$("#ring"),tipR=$("#ringTip"),box=ring.parentElement;
+  function place(e){const r=box.getBoundingClientRect();const w=tipR.offsetWidth,h=tipR.offsetHeight;let x=e.clientX-r.left+14,y=e.clientY-r.top+14;if(x+w>r.width)x=e.clientX-r.left-w-14;tipR.style.left=Math.max(4,x)+"px";tipR.style.top=Math.max(4,Math.min(y,r.height-h-4))+"px";}
+  ring.addEventListener("pointermove",e=>{const a=e.target.closest(".arc");
+    if(!a){if(UI.ringU>=0){UI.ringU=-1;ringFocusPlot(-1);tipR.hidden=true;if(typeof setMapHover==="function")setMapHover(-1);}return;}
+    const u=+a.dataset.u,c=+a.dataset.c;tipR.innerHTML=ringTipHtml(u,c);tipR.hidden=false;place(e);
+    if(UI.ringU!==u){UI.ringU=u;ringFocusPlot(u);if(typeof setMapHover==="function")setMapHover(u);}});
+  ring.addEventListener("pointerleave",()=>{UI.ringU=-1;ringFocusPlot(-1);tipR.hidden=true;if(typeof setMapHover==="function")setMapHover(-1);});
+  ring.addEventListener("click",e=>{const mz=e.target.closest(".monthzone");if(mz){const m=+mz.dataset.m;const mi=$("#month");mi.value=UI.month===m?-1:m;mi.dispatchEvent(new Event("input"));return;}
+    const a=e.target.closest(".arc");if(a&&typeof zoomToPlot==="function")zoomToPlot(+a.dataset.u);});
+})();
+
 const T0=Date.parse(D.start+"T00:00:00Z"),DAY=864e5,MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 function dstr(i){if(i===0)return "before 2018";const d=new Date(T0+i*D.step*DAY);return d.getUTCDate()+" "+MO[d.getUTCMonth()]+" "+d.getUTCFullYear();}
 
@@ -372,7 +413,7 @@ $("#gutIn").addEventListener("change",pickGut);
 
 // ---------- village ----------
 const GRP=["sugarcane","banana","onion","seasonal","other","unknown"];
-const GRPN={sugarcane:"Sugarcane",banana:"Banana",onion:"Onion",seasonal:"Seasonal grains & pulses",other:"Other crops",unknown:"Not identified"};
+const GRPN={sugarcane:"Sugarcane",banana:"Banana",onion:"Onion",seasonal:"Seasonal grains & pulses",other:"Vegetables, fodder, fruit",unknown:"Not identified"};
 const village=D.wys.map((y,w)=>{const [a,b]=D.wyIdx[w];const ar={};GRP.forEach(g=>ar[g]=0);let et=0,plotA=0;const cane={a:0};
   for(let u=0;u<U;u++){if(D.u[u][1])continue;const A=D.u[u][2];plotA+=A;et+=D.u[u][wyi===w?0:0]===undefined?0:0;
     for(let c=D.us0[u];c<D.us0[u+1];c++){const eo=cyc(c,2),so=cyc(c,1);if(so===0||eo<a||eo>=b)continue;ar[CR[cyc(c,0)].grp]+=A/1e4;}}
@@ -440,7 +481,7 @@ function mainCycle(u){const [a,b]=D.wyIdx[wyi];let best=-1,bl=0;for(let c=D.us0[
 function unitCycle(u){return month<0?mainCycle(u):activeCycle(u,stepOfMonth(month));}
 function unitNeedMm(u){return need(D.et[u][wyi]);}
 function unitFill(u){
-  if(mode==="crop"){if(D.u[u][1])return [mix(PAL.land,PAL.soil,.5),1];const c=unitCycle(u);if(c<0)return [PAL.soil,1];return [PAL.grp[CR[cyc(c,0)].grp],cyc(c,3)===1?.5:1];}
+  if(mode==="crop"){if(D.u[u][1])return [mix(PAL.land,PAL.soil,.5),1];const c=unitCycle(u);if(c<0)return [PAL.soil,1];const gp=CR[cyc(c,0)].grp;if(UI.focus&&gp!==UI.focus)return [mix(PAL.soil,PAL.land,.4),1];return [PAL.grp[gp],cyc(c,3)===1?.5:1];}
   const mm=unitNeedMm(u);
   if(mode==="water"){const t=Math.min(1,mm/1500);return [mix(PAL.wlo,PAL.whi,t),D.u[u][1]?.45:1];}
   const kwhHa=mm*10*kwhPerM3();const t=Math.min(1,kwhHa/5000);return [mix(PAL.elo,PAL.ehi,t),D.u[u][1]?.45:1];}
@@ -459,7 +500,7 @@ function paint(){
   if(V.s>0.55){ctx.font="500 10px "+getComputedStyle(document.body).getPropertyValue("--f-data");ctx.textAlign="center";ctx.textBaseline="middle";
     for(let g=0;g<GPT.length;g++){if(!visible(GB[g]))continue;const w=(GB[g][2]-GB[g][0])*V.s;if(w<26)continue;const x=GC[g][0]*V.s+V.tx,y=GC[g][1]*V.s+V.ty;
       ctx.lineWidth=3;ctx.strokeStyle=`rgba(${PAL.paper.join(",")},.85)`;ctx.strokeText(D.gut[g],x,y);ctx.fillStyle=rgb(PAL.ink);ctx.fillText(D.gut[g],x,y);}}
-  if(hover>=0){path(UP[hover]);ctx.strokeStyle=rgb(PAL.ink);ctx.lineWidth=1.5;ctx.stroke();}
+  if(hover>=0){path(UP[hover]);ctx.strokeStyle=rgb(PAL.paper);ctx.lineWidth=4;ctx.stroke();ctx.strokeStyle=rgb(PAL.ink);ctx.lineWidth=1.8;ctx.stroke();}
   if(curGut>=0){path(GPT[curGut]);ctx.strokeStyle=rgb(PAL.paper);ctx.lineWidth=5;ctx.stroke();ctx.strokeStyle=rgb(PAL.sel);ctx.lineWidth=2.4;ctx.stroke();}
 }
 function inPoly(x,y,p){let inside=false;for(let i=0,j=p.length-2;i<p.length;j=i,i+=2){const xi=p[i],yi=p[i+1],xj=p[j],yj=p[j+1];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))inside=!inside;}return inside;}
@@ -479,21 +520,23 @@ cv.addEventListener("pointermove",e=>{
   if(ptrs.has(e.pointerId))ptrs.set(e.pointerId,[e.offsetX,e.offsetY]);
   if(pinch&&ptrs.size===2){const [a,b]=[...ptrs.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]),k=d/pinch.d;V.s=pinch.s*k;V.tx=pinch.cx-(pinch.cx-pinch.tx)*k;V.ty=pinch.cy-(pinch.cy-pinch.ty)*k;moved=99;draw();return;}
   if(drag){const dx=e.offsetX-drag.x,dy=e.offsetY-drag.y;moved+=Math.abs(dx)+Math.abs(dy);if(moved>4){cv.classList.add("drag");V.tx+=dx;V.ty+=dy;drag={x:e.offsetX,y:e.offsetY};tip.hidden=true;draw();}return;}
-  if(e.pointerType==="mouse"){const u=hit(e.offsetX,e.offsetY);if(u!==hover){hover=u;draw();}showTip(u,e.offsetX,e.offsetY);}});
+  if(e.pointerType==="mouse"){const u=hit(e.offsetX,e.offsetY);if(u!==hover){hover=u;draw();ringFocusPlot(u>=0&&D.u[u][0]===curGut?u:-1);}showTip(u,e.offsetX,e.offsetY);}});
 function endPtr(e){const wasTap=drag&&moved<=4&&ptrs.size===1;ptrs.delete(e.pointerId);cv.classList.remove("drag");
   if(wasTap){const u=hit(e.offsetX,e.offsetY);if(u>=0){hover=u;selectGut(D.u[u][0],false);showTip(u,e.offsetX,e.offsetY);}else{const x=(e.offsetX-V.tx)/V.s,y=(e.offsetY-V.ty)/V.s;for(let g=0;g<GPT.length;g++){const b=GB[g];if(x>=b[0]&&x<=b[2]&&y>=b[1]&&y<=b[3]&&inPoly(x,y,GPT[g])){selectGut(g,false);break;}}}}
   if(ptrs.size<2)pinch=null;if(ptrs.size===0)drag=null;else if(ptrs.size===1){const p=[...ptrs.values()][0];drag={x:p[0],y:p[1]};}}
 cv.addEventListener("pointerup",endPtr);cv.addEventListener("pointercancel",endPtr);
-cv.addEventListener("pointerleave",e=>{if(e.pointerType==="mouse"){hover=-1;tip.hidden=true;draw();}});
+cv.addEventListener("pointerleave",e=>{if(e.pointerType==="mouse"){hover=-1;tip.hidden=true;draw();ringFocusPlot(-1);}});
+function setMapHover(u){hover=u;draw();}
+function zoomToPlot(u){const b=UB[u],w=b[2]-b[0],h=b[3]-b[1],pad=Math.max(w,h,40)*2.2;fit([b[0]-pad,b[1]-pad,b[2]+pad,b[3]+pad]);hover=u;draw();}
 function zoomAt(k,cx,cy){V.tx=cx-(cx-V.tx)*k;V.ty=cy-(cy-V.ty)*k;V.s*=k;draw();}
 cv.addEventListener("wheel",e=>{e.preventDefault();zoomAt(Math.exp(-e.deltaY*0.0015),e.offsetX,e.offsetY);},{passive:false});
 $("#zIn").onclick=()=>zoomAt(1.5,W0/2,H0/2);$("#zOut").onclick=()=>zoomAt(1/1.5,W0/2,H0/2);$("#zHome").onclick=()=>{fit(EXT);draw();};
 const MODES=[["crop","Crop"],["water","Water need"],["elec","Electricity"]];
 MODES.forEach(([k,n])=>{const b=document.createElement("button");b.type="button";b.textContent=n;b.setAttribute("aria-pressed",k===mode);b.onclick=()=>{mode=k;[...$("#modeSeg").children].forEach(c=>c.setAttribute("aria-pressed",c===b));mapLegend();draw();};$("#modeSeg").appendChild(b);});
 const MONL=["June","July","August","September","October","November","December","January","February","March","April","May"];
-$("#month").addEventListener("input",e=>{month=+e.target.value;const y=D.wys[wyi];$("#monthLab").textContent=month<0?"Whole year · main crop":`${MONL[month]} ${month<7?y:y+1}`;draw();});
+$("#month").addEventListener("input",e=>{month=+e.target.value;UI.month=month;if(curGut>=0)drawRing(curGut);const y=D.wys[wyi];$("#monthLab").textContent=month<0?"Whole year · main crop":`${MONL[month]} ${month<7?y:y+1}`;draw();});
 function mapLegend(){const el=$("#mapLegend");
-  if(mode==="crop"){el.innerHTML=["sugarcane","banana","onion","seasonal","other","unknown"].map(gp=>`<span class="chip"><span class="sw" style="background:var(--g-${gp})"></span>${GRPN[gp]}</span>`).join("")+`<span class="chip"><span class="sw" style="background:var(--soil)"></span>No crop</span>`;}
+  el.classList.toggle("lgdim",mode==="crop"&&!!UI.focus);if(mode==="crop"){el.innerHTML=GRPS.map(gp=>legendBtn(gp)).join("")+`<span class="chip" style="font-size:.78rem"><span class="sw" style="background:var(--soil)"></span>No crop</span>`;}
   else if(mode==="water"){el.innerHTML=`<span>0 mm</span><span class="ramp" style="background:linear-gradient(90deg,var(--w-lo),var(--w-hi))"></span><span>1,500+ mm irrigation need this water year</span>`;}
   else{el.innerHTML=`<span>0</span><span class="ramp" style="background:linear-gradient(90deg,var(--e-lo),var(--e-hi))"></span><span>5,000+ kWh per ha of pump electricity</span>`;}}
 function selectGut(g,zoom){$("#gutIn").value=D.gut[g];$("#gutMsg").hidden=true;renderGut(g);if(zoom){const b=GB[g],w=b[2]-b[0],h=b[3]-b[1],pad=Math.max(w,h)*1.6;fit([b[0]-pad,b[1]-pad,b[2]+pad,b[3]+pad]);}draw();}
