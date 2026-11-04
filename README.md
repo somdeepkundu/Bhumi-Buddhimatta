@@ -15,6 +15,7 @@ RuDRA Lab · C-TARA · IIT Bombay
 | **Loni plots, gut by gut** | [Launch](https://somdeepkundu.github.io/Bhumi-Buddhimatta/loni_viewer_v3/loni_plots_per_gut.html) | Map + chart of all 469 Loni Devkar guts on the kharif 2023 drone image: old segmentation model vs new model |
 | **Loni plot labeller** | [Launch](https://somdeepkundu.github.io/Bhumi-Buddhimatta/plot_labeller/) | Check the model's plots gut by gut: keep, reject, or draw missed fields; labels train the next model |
 | **Loni old map and new map** | [Launch](https://somdeepkundu.github.io/Bhumi-Buddhimatta/loni_viewer_v3/loni_old_vs_new_map.html) | Slide between the old and the new map on the drone image: gut boundaries, roads, streams, ponds and wells |
+| **Loni crop ledger** | [Launch](https://somdeepkundu.github.io/Bhumi-Buddhimatta/loni_viewer_v3/loni_crop_ledger.html) | Village map of every Loni Devkar plot, a crop calendar ring per gut, harvest value, crop water use and pump electricity per water year, with sources linked |
 
 ## Use offline
 Download any `.html` file and open it — everything runs locally.  
