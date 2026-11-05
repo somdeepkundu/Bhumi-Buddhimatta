@@ -731,10 +731,15 @@ html[lang="mr"] .lbl{letter-spacing:0;text-transform:none;font-size:12px}
 @media (min-width:980px){.main{grid-template-columns:minmax(0,5fr) minmax(0,7fr)}}
 .panel{background:var(--surface);border:1px solid var(--hair);border-radius:10px;min-width:0}
 .mapbox{display:flex;flex-direction:column;overflow:hidden}
-#map{height:440px;min-height:400px;background:var(--sunk);flex:1 1 auto}
-@media (min-width:980px){#map{height:560px}}
+#map{height:440px;background:var(--sunk);flex:none}
+@media (min-width:980px){#map{height:620px}.mapbox{position:sticky;top:12px;align-self:start}}
+.maptools{position:absolute;top:10px;right:10px;z-index:500;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.maptools .seg{box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.maptools .btn{box-shadow:0 1px 4px rgba(0,0,0,.18);padding:5px 10px;font-size:12.5px}
+.mapwrap{position:relative}
+.leaflet-interactive{cursor:pointer}
 .leaflet-container{font-family:var(--f-body);background:var(--sunk)}
-.leaflet-tooltip.vlab{background:transparent;border:0;box-shadow:none;font-family:var(--f-display);font-weight:600;font-size:14px;color:var(--ink2);letter-spacing:.06em;text-transform:uppercase}
+.leaflet-tooltip.vlab{background:transparent;border:0;box-shadow:none;font-family:var(--f-display);font-weight:600;font-size:14px;color:var(--ink2);text-shadow:0 0 3px var(--surface),0 0 6px var(--surface);letter-spacing:.06em;text-transform:uppercase}
 .leaflet-tooltip.vlab:before{display:none}
 .leaflet-tooltip.gtip{background:var(--surface);color:var(--ink);border:1px solid var(--hair);font-size:12px;box-shadow:none}
 .leaflet-bar a{background:var(--surface);color:var(--ink);border-color:var(--hair)}
@@ -860,7 +865,7 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;color:v
 
   <div class="main">
     <section class="panel mapbox" aria-label="Map">
-      <div id="map"></div>
+      <div class="mapwrap"><div id="map"></div><div class="maptools"><div class="seg" id="base" role="group" aria-label="Background"><button type="button" data-b="sat" aria-pressed="true">Satellite</button><button type="button" data-b="plain" aria-pressed="false">Plain</button></div><button type="button" class="btn" id="fitall">Show all fields</button></div></div>
       <div class="legend" id="legend"></div>
     </section>
     <section class="panel sheet" id="sheet" aria-live="polite"></section>
@@ -1077,19 +1082,28 @@ if (ls.get('ph-lang')==='mr') LANG='mr';
 /* ---------- map ---------- */
 const QV = ['--q1','--q2','--q3','--q4','--q5'];
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-let map, ctxLayer, plotLayer, dotLayer, vLabels = [];
+let map, sat, ctxLayer, plotLayer, dotLayer, vLabels = [], BASE = 'sat', B;
+const ctxStyle = () => BASE==='sat' ? {color:'#ffffff', weight:0.6, opacity:0.45, fillOpacity:0} : {color:css('--muted'), weight:0.5, opacity:0.55, fillColor:css('--surface'), fillOpacity:0.55};
+function setBase(b){ BASE = b; if (b==='sat') sat.addTo(map); else map.removeLayer(sat); document.querySelectorAll('#base button').forEach(x => x.setAttribute('aria-pressed', x.dataset.b===b)); ls.set('ph-base', b); renderMap(); }
 const centroid = ring => { let x=0,y=0; ring.forEach(c=>{x+=c[0];y+=c[1]}); return [y/ring.length, x/ring.length]; };
 function initMap(){
-  map = L.map('map', {preferCanvas:true, zoomSnap:0.25, minZoom:11, maxZoom:19, attributionControl:false, scrollWheelZoom:false});
+  map = L.map('map', {preferCanvas:true, zoomSnap:0.25, minZoom:11, maxZoom:19, attributionControl:true, scrollWheelZoom:true});
+  map.attributionControl.setPrefix(false);
+  sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {maxZoom:19, maxNativeZoom:18, attribution:'Imagery © Esri, Maxar'});
+  let tileFail = 0;
+  sat.on('tileerror', () => { if (++tileFail === 4 && BASE==='sat'){ setBase('plain'); $('#base').hidden = true; } });
   ctxLayer = L.geoJSON({type:'FeatureCollection', features: D.ctx.map(([v,c]) => ({type:'Feature', properties:{v}, geometry:{type:'Polygon', coordinates:c}}))},
-    {interactive:false, style:()=>({color:css('--muted'), weight:0.5, opacity:0.55, fillColor:css('--surface'), fillOpacity:0.55})});
+    {interactive:false, style:ctxStyle});
   let a=90,b=-90,c=180,d=-180; D.plots.forEach(p => p.g[0][0].forEach(q => { a=Math.min(a,q[1]); b=Math.max(b,q[1]); c=Math.min(c,q[0]); d=Math.max(d,q[0]); }));
-  const B = L.latLngBounds([a,c],[b,d]).pad(0.12); map.fitBounds(B, {padding:[10,10]}); ctxLayer.addTo(map);
+  B = L.latLngBounds([a,c],[b,d]).pad(0.12); map.fitBounds(B, {padding:[10,10]}); ctxLayer.addTo(map);
   let fitted = false;
   new ResizeObserver(() => { const el = $('#map'); if (!el.clientWidth) return; map.invalidateSize(); if (!fitted){ map.fitBounds(B, {padding:[10,10]}); fitted = true; } }).observe($('#map'));
   plotLayer = L.layerGroup().addTo(map); dotLayer = L.layerGroup().addTo(map);
   ['D','M'].forEach(v => { const fs = D.ctx.filter(x=>x[0]===v); let la=0,lo=0,n=0; fs.forEach(([,c]) => c[0].forEach(q=>{lo+=q[0];la+=q[1];n++}));
     vLabels.push(L.tooltip({permanent:true, direction:'center', className:'vlab'}).setLatLng([la/n, lo/n]).addTo(map)); });
+  $('#base').onclick = e => { const b = e.target.closest('button'); if (b) setBase(b.dataset.b); };
+  $('#fitall').onclick = () => map.flyToBounds(B, {duration:0.6});
+  if ((ls.get('ph-base') || 'sat') === 'sat') { sat.addTo(map); } else { BASE = 'plain'; document.querySelectorAll('#base button').forEach(x => x.setAttribute('aria-pressed', x.dataset.b==='plain')); }
 }
 function classes(vals){
   const s = vals.filter(v=>v!=null).sort((a,b)=>a-b); if (s.length < 2) return null;
@@ -1098,7 +1112,7 @@ function classes(vals){
 }
 function renderMap(){
   vLabels[0].setContent(t('Datli')); vLabels[1].setContent(t('Musalgaon'));
-  ctxLayer.setStyle({color:css('--muted'), fillColor:css('--surface')});
+  ctxLayer.setStyle(ctxStyle());
   plotLayer.clearLayers(); dotLayer.clearLayers();
   const rs = R.filter(r => r.c.crop===S.crop);
   const br = classes(rs.filter(r=>r.bench).map(val));
@@ -1108,9 +1122,9 @@ function renderMap(){
     const r = rs.find(x => x.p===p), v = r ? val(r) : null, sel = p.id===S.sel;
     const fill = r ? (r.lost ? css('--bad') : colFor(v)) : css('--sunk');
     const hollow = p.match !== 'whole gat';
-    const style = {color: sel ? css('--ink') : css('--ink2'), weight: sel ? 2.5 : 1, fillColor: fill, fillOpacity: show ? (r ? 0.9 : 0.5) : 0.15, opacity: show ? 1 : 0.3};
+    const style = {color: sel ? (BASE==='sat' ? '#ffd23f' : css('--ink')) : (BASE==='sat' ? '#ffffff' : css('--ink2')), weight: sel ? 3 : 1.2, fillColor: fill, fillOpacity: show ? (r ? 0.9 : 0.5) : 0.15, opacity: show ? 1 : 0.3};
     const poly = L.polygon(p.g.map(pg => pg.map(ring => ring.map(c => [c[1], c[0]]))), style).addTo(plotLayer);
-    const dot = L.circleMarker(centroid(p.g[0][0]), {radius: sel ? 8 : 6, color: sel ? css('--ink') : (r ? css('--surface') : css('--muted')), weight: sel ? 2.5 : 1.5,
+    const dot = L.circleMarker(centroid(p.g[0][0]), {radius: sel ? 8 : 6, color: sel ? (BASE==='sat' ? '#ffd23f' : css('--ink')) : (r ? '#ffffff' : css('--muted')), weight: sel ? 2.5 : 1.5,
       fillColor: hollow ? css('--surface') : fill, fillOpacity: show ? 1 : 0.2, opacity: show ? 1 : 0.3}).addTo(dotLayer);
     if (hollow && r){ dot.setStyle({color: fill, weight: 2.5}); }
     const tip = `<b>${p.id}</b> · ${t(p.v)}<br>${r ? `${cname(S.crop)}: ${r.lost ? t('lost') : f2(v) + ' ' + t(S.unit==='kg'?'u_kg':'u_rs')}` : p.cyc.map(c=>cname(c.crop)).join(' → ')}`;
@@ -1127,6 +1141,7 @@ function renderMap(){
 function select(id, fromMap){
   S.sel = id; if (location.hash.slice(1) !== id) location.hash = id;
   renderMap(); renderSheet(); renderStrip();
+  const p = plotById(id); if (p && !fromMap){ const r = p.g[0][0]; let x=0,y=0; r.forEach(c=>{x+=c[0];y+=c[1]}); map.flyTo([y/r.length, x/r.length], Math.max(map.getZoom(), 16), {duration: matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 0.7}); }
   if (fromMap && window.innerWidth < 980) $('#sheet').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start'});
 }
 window.addEventListener('hashchange', () => { const id = location.hash.slice(1); if (plotById(id) && id !== S.sel) select(id); });
@@ -1247,7 +1262,7 @@ function renderStrip(){
       s += `<text x="${W-r+12}" y="${y+4}" font-size="11.5" fill="var(--ink2)" font-family="IBM Plex Mono,monospace">${t('med').split(' ')[LANG==='mr'?1:1]||''} ${f2(md)} · n ${b.length}</text>`; }
   });
   $('#strip').innerHTML = s + '</svg>';
-  $('#strip').onclick = e => { const c = e.target.closest('circle.pt'); if (c) select(c.dataset.id, true); };
+  $('#strip').onclick = e => { const c = e.target.closest('circle.pt'); if (c) select(c.dataset.id); };
   $('#benchP').textContent = LANG==='mr'
     ? `प्रत्येक बिंदू एक शेत; उभी रेषा गावाचा मध्य (संपूर्ण गट). ${t('b_'+S.basis)}. बिंदूवर टॅप करा.`
     : `Each dot is one field, the bar is the village median (Gats farmed whole; hollow dots are part of a Gat). Water counted: ${t('b_'+S.basis).toLowerCase()}. Tap a dot to open the field.`;
